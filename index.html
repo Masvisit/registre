@@ -699,10 +699,11 @@ function rowToEntry(r){
 }
 // converteix un objecte intern en una fila del full
 function entryToRow(tbl, o){
-  const base = {id:o.id, usuari:USER, ts:o.ts};
+  const d = new Date(o.ts);
+  const base = {id:o.id, usuari:USER, ts:o.ts, data:dstr(d), hora:hstr(d)};
   if(tbl === 'trainings') return {...base, tipus:'entrenament', esport_o_apat:o.sport,
     km:o.km??'', minuts:o.min??'', fc_mitjana:o.fc??'', fc_max:o.fcMax??'', ref_fit:o.fit||'', notes:o.notes||''};
-  if(tbl === 'sleep') return {...base, tipus:'son', hora:o.inH||'', detall:o.outH||'', notes:o.notes||'',
+  if(tbl === 'sleep') return {...base, tipus:'son', esport_o_apat:'Son', detall:o.outH||'', notes:o.notes||'',
     son_total_min:o.tot??'', son_real_min:o.real??'', puntuacio:o.score??'', continuitat:o.cont??'',
     lleuger_min:o.light??'', profund_min:o.deep??'', rem_min:o.rem??'', interrupcions_min:o.intr??'',
     vfc_ms:o.hrv??'', fc_repos:o.rhr??'', resp_rpm:o.br??'', recharge:o.rech||''};
@@ -737,20 +738,41 @@ async function deleteRow(id){
   if(!j.ok) throw new Error(j.error||'error');
 }
 
-let syncing = false;
-function setSync(on){
-  online = on;
+function setSync(state){
+  // state: true = ok, false = error, 'busy' = sincronitzant
   const el = document.getElementById('syncDot');
-  if(el){ el.style.background = on ? 'var(--moss)' : 'var(--rust)';
-          el.title = on ? 'Sincronitzat amb el núvol' : 'Sense connexió — es guarda en local'; }
+  if(!el) return;
+  if(state === 'busy'){ el.style.background = 'var(--ember)'; el.title = 'Sincronitzant…'; return; }
+  online = state;
+  el.style.background = state ? 'var(--moss)' : 'var(--rust)';
+  el.title = state ? 'Sincronitzat amb el núvol' : 'Sense connexió — es guarda en local';
+}
+
+// llegeix del núvol amb reintent i sense pintar vermell a la primera (cold start de Google)
+let writing = 0;
+async function refresh(showBusy){
+  if(writing > 0) return;          // no re-llegeixis mentre s'està escrivint
+  if(showBusy) setSync('busy');
+  for(let intent=0; intent<2; intent++){
+    try{
+      await pullFromCloud();
+      setSync(true); render();
+      return true;
+    }catch(e){
+      if(intent===0){ await new Promise(r=>setTimeout(r,1500)); continue; }
+      setSync(false);
+      return false;
+    }
+  }
 }
 
 async function load(){
-  loadLocal(); render();               // 1r: pinta el que hi ha en local (instantani)
-  try{
-    await pullFromCloud();             // 2n: baixa la versió del núvol
-    setSync(true); render();
-  }catch(e){ setSync(false); }         // sense connexió: seguim amb la còpia local
+  loadLocal(); render();          // 1r: pinta el local (instantani)
+  await refresh(true);            // 2n: baixa del núvol, amb reintent
+  // refresc automàtic: manté els dispositius sincronitzats i l'script de Google despert
+  setInterval(()=>{ if(!document.hidden) refresh(false); }, 8000);
+  // en tornar a la pestanya/app, refresca de seguida
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refresh(true); });
 }
 
 // desar genèric mantingut per compatibilitat (ingredients propis, recents…): només local
@@ -767,14 +789,18 @@ function allIng(){ return Object.assign({}, DB, D.custom); }
 async function pushEntry(tbl, o){
   D[tbl].push(o);
   saveLocal(); render();
+  writing++; setSync('busy');
   try{ await pushRow(tbl, o); setSync(true); }
   catch(e){ setSync(false); toast('Desat en local; se sincronitzarà quan reconnectis.'); }
+  finally{ writing--; }
 }
 async function removeEntry(tbl, id){
   D[tbl] = D[tbl].filter(x=>x.id!==id);
   saveLocal(); render();
+  writing++; setSync('busy');
   try{ await deleteRow(id); setSync(true); }
   catch(e){ setSync(false); toast('Esborrat en local; el núvol s\'actualitzarà en reconnectar.'); }
+  finally{ writing--; }
 }
 
 /* prefixa els camps de data i hora amb el moment actual del dispositiu */
