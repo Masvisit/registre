@@ -1,0 +1,1239 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1712;        /* sotabosc */
+  --bark:#18261D;       /* superfície */
+  --bark2:#22362A;      /* superfície elevada */
+  --line:#2E4636;
+  --paper:#ECEFE6;
+  --mute:#8CA294;
+  --moss:#B8D44A;       /* entrenament */
+  --ember:#F0A63C;      /* menjar */
+  --rust:#D4614A;       /* esborrar */
+  --sky:#7FB2C9;        /* son */
+  --font:'Familjen Grotesk',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--paper);font-family:var(--font);
+  font-size:16px;line-height:1.45;
+  padding:0 0 env(safe-area-inset-bottom);
+  overscroll-behavior-y:contain;
+}
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 32px}
+button,input,select,textarea{font-family:inherit;font-size:16px}
+button{cursor:pointer;border:none;background:none;color:inherit}
+
+/* ---------- capçalera ---------- */
+.top{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 14px}
+.brand{font-weight:700;font-size:19px;letter-spacing:-.4px}
+.brand span{color:var(--moss)}
+.today{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.5px;text-transform:uppercase}
+
+/* ---------- tira del dia (signature) ---------- */
+.strip{background:var(--bark);border:1px solid var(--line);border-radius:14px;padding:14px 14px 10px;margin-bottom:14px}
+.strip-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.strip-h b{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-1px}
+.strip-h em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--mute)}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g{}
+.g-lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mute);margin-bottom:4px;letter-spacing:.5px}
+.g-lab b{color:var(--paper);font-weight:600}
+.g-bar{height:5px;background:var(--bark2);border-radius:3px;overflow:hidden;position:relative}
+.g-fill{height:100%;border-radius:3px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+.g-tick{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--line)}
+.trainmark{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--mute);display:flex;gap:8px;flex-wrap:wrap}
+.trainmark .tm{color:var(--ink);background:var(--moss);border-radius:4px;padding:2px 7px;font-weight:600}
+
+/* ---------- accions ---------- */
+.acts{display:grid;gap:9px;margin-bottom:16px}
+.act{display:flex;align-items:center;gap:13px;background:var(--bark);border:1px solid var(--line);
+  border-radius:13px;padding:16px 15px;text-align:left;transition:transform .1s,border-color .15s}
+.act:active{transform:scale(.985)}
+.act .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.act .ico svg{width:20px;height:20px}
+.act .tx{flex:1;min-width:0}
+.act .tx b{display:block;font-size:16px;font-weight:600;letter-spacing:-.2px}
+.act .tx small{color:var(--mute);font-size:12.5px}
+.act .arw{color:var(--mute);font-size:19px}
+.act.t .ico{background:rgba(184,212,74,.16);color:var(--moss)}
+.act.f .ico{background:rgba(240,166,60,.16);color:var(--ember)}
+.act.d .ico{background:rgba(236,239,230,.1);color:var(--paper)}
+.act.s .ico{background:rgba(127,178,201,.16);color:var(--sky)}
+.act.u .ico{background:rgba(184,212,74,.1);color:var(--moss)}
+.save.sky{background:var(--sky)}
+.chip.on.sky{background:var(--sky);color:var(--ink)}
+.catbar{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch}
+.catbar::-webkit-scrollbar{display:none}
+.catbar .chip{white-space:nowrap;padding:7px 11px;font-size:13px}
+
+/* ---------- registre ---------- */
+.sec{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--mute);margin:20px 0 9px;display:flex;justify-content:space-between;align-items:center}
+.sec button{font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;color:var(--moss);text-transform:uppercase}
+.row{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--bark);
+  border:1px solid var(--line);border-radius:11px;margin-bottom:7px;width:100%;text-align:left}
+.row:active{background:var(--bark2)}
+.row .dot{width:3px;align-self:stretch;border-radius:2px;flex:none}
+.row .m{flex:1;min-width:0}
+.row .m b{display:block;font-size:14.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .m small{font-family:var(--mono);font-size:11px;color:var(--mute)}
+.row .r{font-family:var(--mono);font-size:12px;color:var(--mute);text-align:right;flex:none}
+.row .r b{display:block;color:var(--paper);font-size:13px;font-weight:600}
+.empty{color:var(--mute);font-size:14px;text-align:center;padding:26px 18px;border:1px dashed var(--line);border-radius:12px;line-height:1.5}
+
+/* ---------- full de formulari ---------- */
+.sheet{position:fixed;inset:0;background:var(--ink);z-index:50;overflow-y:auto;
+  display:none;animation:up .22s cubic-bezier(.32,.72,0,1)}
+.sheet.on{display:block}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.g-fill{transition:none}}
+.sh-top{position:sticky;top:0;background:var(--ink);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;padding:13px 14px;z-index:2}
+.sh-top h2{margin:0;font-size:17px;font-weight:600;flex:1;letter-spacing:-.3px}
+.x{font-size:24px;line-height:1;color:var(--mute);padding:2px 6px}
+
+label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--mute);margin:16px 0 7px}
+input[type=text],input[type=number],textarea,select{
+  width:100%;background:var(--bark);border:1px solid var(--line);border-radius:10px;
+  padding:12px 13px;color:var(--paper);font-family:var(--mono);font-size:16px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--moss)}
+textarea{font-family:var(--font);min-height:64px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:var(--bark);border:1px solid var(--line);border-radius:9px;
+  padding:10px 13px;font-size:14px;transition:all .12s}
+.chip:active{transform:scale(.96)}
+.chip.on{background:var(--moss);color:var(--ink);border-color:var(--moss);font-weight:600}
+.chip.on.amb{background:var(--ember)}
+
+.save{width:100%;background:var(--moss);color:var(--ink);font-weight:700;font-size:16px;
+  border-radius:12px;padding:16px;margin-top:24px;letter-spacing:-.2px}
+.save.amb{background:var(--ember)}
+.save:disabled{opacity:.35}
+.ghost{width:100%;background:none;border:1px solid var(--line);color:var(--mute);
+  border-radius:12px;padding:13px;margin-top:9px;font-size:14px}
+.danger{color:var(--rust);border-color:rgba(212,97,74,.4)}
+
+/* ---------- cercador d'ingredients ---------- */
+.search{position:sticky;top:53px;background:var(--ink);padding:11px 0 9px;z-index:1}
+.ing{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--bark);
+  border:1px solid var(--line);border-radius:10px;margin-bottom:6px;width:100%;text-align:left}
+.ing:active{background:var(--bark2)}
+.ing b{flex:1;font-size:14.5px;font-weight:500}
+.ing small{font-family:var(--mono);font-size:11px;color:var(--mute);flex:none}
+.tagnew{background:rgba(240,166,60,.16);color:var(--ember);font-family:var(--mono);
+  font-size:9px;padding:2px 5px;border-radius:4px;letter-spacing:.5px}
+
+.basket{background:var(--bark2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:14px}
+.bk{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.bk:last-of-type{border:none}
+.bk b{flex:1;font-weight:500}
+.bk small{font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+.bk .rm{color:var(--rust);font-size:19px;padding:0 4px;line-height:1}
+.bk-tot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;
+  color:var(--mute);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.bk-tot b{color:var(--ember);font-weight:600}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(70px);
+  background:var(--paper);color:var(--ink);font-weight:600;font-size:14px;
+  padding:12px 20px;border-radius:11px;z-index:99;transition:transform .28s cubic-bezier(.32,.72,0,1);
+  box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:88vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.hint{font-size:13px;color:var(--mute);margin-top:9px;line-height:1.5}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Registre<span>.</span></div>
+    <div class="today" id="todayLbl" onclick="load()" style="display:flex;align-items:center;gap:7px;cursor:pointer">
+      <span id="syncDot" style="width:8px;height:8px;border-radius:50%;background:var(--mute);display:inline-block" title="Sincronitzant…"></span>
+      <span id="todayTxt"></span>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="strip-h">
+      <b id="kcalNow">0</b>
+      <em id="kcalGoal">de 3.000 kcal</em>
+    </div>
+    <div class="gauges">
+      <div class="g">
+        <div class="g-lab"><span>PROT</span><b id="pNow">0 g</b></div>
+        <div class="g-bar"><div class="g-fill" id="pBar" style="width:0;background:var(--moss)"></div></div>
+      </div>
+      <div class="g">
+        <div class="g-lab"><span>HIDR</span><b id="cNow">0 g</b></div>
+        <div class="g-bar"><div class="g-fill" id="cBar" style="width:0;background:var(--ember)"></div></div>
+      </div>
+      <div class="g">
+        <div class="g-lab"><span>GREIX</span><b id="fNow">0 g</b></div>
+        <div class="g-bar"><div class="g-fill" id="fBar" style="width:0;background:#7FB2C9"></div></div>
+      </div>
+    </div>
+    <div class="trainmark" id="trainMark">Cap entrenament registrat avui</div>
+    <div class="trainmark" id="sleepMark" style="border-top:none;padding-top:0;margin-top:7px"></div>
+  </div>
+
+  <div class="acts">
+    <button class="act t" onclick="openTrain()">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4a1.5 1.5 0 1 0 0-.01"/><path d="M7 21l3-6 4-2 1-5 4 3 3-1"/><path d="M4 12l3-3 3 1"/></svg></div>
+      <div class="tx"><b>Afegeix entrenament</b><small>Esport, distància, temps, FC</small></div>
+      <div class="arw">›</div>
+    </button>
+    <button class="act f" onclick="openFood()">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v8a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 3c-1.5 2-2 4-2 6s.5 3 2 3 2-1 2-3-.5-4-2-6zM17 12v9"/></svg></div>
+      <div class="tx"><b>Afegeix menjar</b><small>Ingredients i quantitat</small></div>
+      <div class="arw">›</div>
+    </button>
+    <button class="act s" onclick="openSleep()">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></div>
+      <div class="tx"><b>Afegeix son</b><small>Hores, fases, VFC, interrupcions</small></div>
+      <div class="arw">›</div>
+    </button>
+    <button class="act d" onclick="download()">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg></div>
+      <div class="tx"><b>Descarrega la taula</b><small id="dlSub">Exporta-ho tot en CSV</small></div>
+      <div class="arw">›</div>
+    </button>
+    <button class="act u" onclick="document.getElementById('impFile').click()">
+      <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M7 13l5-5 5 5M4 4h16"/></svg></div>
+      <div class="tx"><b>Puja dades</b><small>Restaura des d'un fitxer CSV o JSON</small></div>
+      <div class="arw">›</div>
+    </button>
+  </div>
+
+  <div class="sec">Avui <button onclick="toggleAll()" id="allBtn">Veure-ho tot</button></div>
+  <div id="log"></div>
+</div>
+
+<!-- ============ ENTRENAMENT ============ -->
+<div class="sheet" id="shTrain">
+  <div class="sh-top"><button class="x" onclick="close_('shTrain')">×</button><h2>Nou entrenament</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <div class="grid2">
+      <div><label>Data</label><input type="date" id="tDate"></div>
+      <div><label>Hora</label><input type="time" id="tTime"></div>
+    </div>
+    <label>Esport</label>
+    <div class="chips" id="sportChips"></div>
+    <div class="grid2">
+      <div><label>Distància (km)</label><input type="number" step="0.01" inputmode="decimal" id="tKm" placeholder="—"></div>
+      <div><label>Temps (min)</label><input type="number" step="1" inputmode="numeric" id="tMin" placeholder="—"></div>
+    </div>
+    <div class="grid2">
+      <div><label>FC mitjana</label><input type="number" inputmode="numeric" id="tFc" placeholder="—"></div>
+      <div><label>FC màxima</label><input type="number" inputmode="numeric" id="tFcMax" placeholder="—"></div>
+    </div>
+    <label>Referència del fitxer FIT</label>
+    <input type="text" id="tFit" placeholder="p. ex. Polar 12/08 matí">
+    <label>Notes</label>
+    <textarea id="tNotes" placeholder="Sensacions, càrregues, sèries…"></textarea>
+    <button class="save" onclick="saveTrain()">Desa l'entrenament</button>
+    <p class="hint">La data i l'hora es prenen del teu dispositiu en desar.</p>
+  </div>
+</div>
+
+<!-- ============ MENJAR ============ -->
+<div class="sheet" id="shFood">
+  <div class="sh-top"><button class="x" onclick="close_('shFood')">×</button><h2>Nou àpat</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <div class="grid2">
+      <div><label>Data</label><input type="date" id="fDate"></div>
+      <div><label>Hora</label><input type="time" id="fTime"></div>
+    </div>
+    <label>Àpat</label>
+    <div class="chips" id="mealChips"></div>
+    <div class="search"><input type="text" id="q" placeholder="Cerca entre 245 ingredients…" oninput="renderIng()" autocomplete="off"></div>
+    <div class="catbar" id="catBar"></div>
+    <div id="ingList"></div>
+    <div class="basket" id="basket" style="display:none"></div>
+    <button class="save amb" id="saveFoodBtn" onclick="saveFood()" disabled>Desa l'àpat</button>
+  </div>
+</div>
+
+<!-- ============ QUANTITAT ============ -->
+<div class="sheet" id="shQty">
+  <div class="sh-top"><button class="x" onclick="close_('shQty')">×</button><h2 id="qtyName">Quantitat</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <label id="qtyUnitLbl">Quantitat (g)</label>
+    <input type="number" inputmode="decimal" id="qtyVal" step="1">
+    <div class="chips" id="qtyChips" style="margin-top:11px"></div>
+    <div id="qtyPrev" class="hint" style="margin-top:16px"></div>
+    <button class="save amb" onclick="addToBasket()">Afegeix</button>
+  </div>
+</div>
+
+<!-- ============ NOU INGREDIENT ============ -->
+<div class="sheet" id="shNew">
+  <div class="sh-top"><button class="x" onclick="close_('shNew')">×</button><h2>Ingredient nou</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <label>Nom</label>
+    <input type="text" id="nName" placeholder="p. ex. Quinoa cuita">
+    <p class="hint">Valors per 100 g o 100 ml. Els trobaràs a l'etiqueta del producte.</p>
+    <div class="grid2">
+      <div><label>kcal</label><input type="number" inputmode="decimal" id="nK"></div>
+      <div><label>Proteïna (g)</label><input type="number" inputmode="decimal" id="nP"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Hidrats (g)</label><input type="number" inputmode="decimal" id="nC"></div>
+      <div><label>Greix (g)</label><input type="number" inputmode="decimal" id="nF"></div>
+    </div>
+    <button class="save amb" onclick="saveNewIng()">Desa l'ingredient</button>
+    <p class="hint">Quedarà guardat a la teva llista per als propers cops.</p>
+  </div>
+</div>
+
+<!-- ============ DETALL / ESBORRAR ============ -->
+<div class="sheet" id="shDet">
+  <div class="sh-top"><button class="x" onclick="close_('shDet')">×</button><h2 id="detTitle">Registre</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <div id="detBody"></div>
+    <div id="detEdit"></div>
+    <button class="ghost danger" onclick="delEntry()">Esborra aquest registre</button>
+  </div>
+</div>
+
+<!-- ============ SON ============ -->
+<div class="sheet" id="shSleep">
+  <div class="sh-top"><button class="x" onclick="close_('shSleep')">×</button><h2>Nit de son</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <label>Data en què t'has llevat</label>
+    <input type="date" id="slDate">
+    <div class="grid2">
+      <div><label>Hora d'anar a dormir</label><input type="time" id="slIn"></div>
+      <div><label>Hora de llevar-te</label><input type="time" id="slOut"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Temps de son (min)</label><input type="number" inputmode="numeric" id="slTot" placeholder="p. ex. 480"></div>
+      <div><label>Son real (min)</label><input type="number" inputmode="numeric" id="slReal" placeholder="—"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Puntuació (0-100)</label><input type="number" inputmode="numeric" id="slScore" placeholder="—"></div>
+      <div><label>Continuïtat (1-5)</label><input type="number" step="0.1" inputmode="decimal" id="slCont" placeholder="—"></div>
+    </div>
+    <label>Fases (minuts)</label>
+    <div class="grid2">
+      <div><label style="margin-top:0">Lleuger</label><input type="number" inputmode="numeric" id="slLight" placeholder="—"></div>
+      <div><label style="margin-top:0">Profund</label><input type="number" inputmode="numeric" id="slDeep" placeholder="—"></div>
+    </div>
+    <div class="grid2">
+      <div><label>REM</label><input type="number" inputmode="numeric" id="slRem" placeholder="—"></div>
+      <div><label>Interrupcions (min)</label><input type="number" inputmode="numeric" id="slInt" placeholder="—"></div>
+    </div>
+    <label>Nightly Recharge</label>
+    <div class="grid2">
+      <div><label style="margin-top:0">VFC / HRV (ms)</label><input type="number" inputmode="numeric" id="slHrv" placeholder="—"></div>
+      <div><label style="margin-top:0">FC en repòs (ppm)</label><input type="number" inputmode="numeric" id="slRhr" placeholder="—"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Respiració (rpm)</label><input type="number" step="0.1" inputmode="decimal" id="slBr" placeholder="—"></div>
+      <div><label>Estat ANS / Recharge</label><input type="text" id="slRech" placeholder="p. ex. Bo, 4/6"></div>
+    </div>
+    <label>Notes</label>
+    <textarea id="slNotes" placeholder="Com t'has llevat, què va passar la nit abans…"></textarea>
+    <button class="save sky" onclick="saveSleep()">Desa la nit</button>
+  </div>
+</div>
+
+<!-- ============ ELS MEUS INGREDIENTS ============ -->
+<div class="sheet" id="shMine">
+  <div class="sh-top"><button class="x" onclick="close_('shMine')">×</button><h2>Els meus ingredients</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <div id="mineList"></div>
+    <p class="hint">Només pots esborrar els ingredients que has creat tu. Els registres de menjar ja desats no es toquen.</p>
+  </div>
+</div>
+
+<!-- ============ EXPORTACIÓ ============ -->
+<div class="sheet" id="shExp">
+  <div class="sh-top"><button class="x" onclick="close_('shExp')">×</button><h2>Exporta la taula</h2></div>
+  <div class="wrap" style="padding-top:4px">
+    <button class="save" onclick="copyCSV()" id="copyBtn">Copia-ho tot</button>
+    <p class="hint">Enganxa-ho directament al xat amb Claude, o a un full de càlcul. És el format CSV complet.</p>
+    <label>Contingut</label>
+    <textarea id="csvBox" readonly style="font-family:var(--mono);font-size:11px;min-height:220px;white-space:pre;overflow-x:auto"></textarea>
+    <button class="ghost" onclick="tryDownload()">Prova de descarregar el fitxer</button>
+    <p class="hint">La descàrrega directa sol quedar bloquejada dins de l'artifact. Si no et funciona, fes servir el botó de copiar.</p>
+    <label>Còpia de seguretat completa</label>
+    <button class="ghost" onclick="backupJSON()">Copia la còpia completa (JSON)</button>
+    <button class="ghost" onclick="downloadJSON()">Descarrega la còpia completa (fitxer .json)</button>
+    <p class="hint">Inclou <b>tot</b>: entrenaments, menjar, son i els teus ingredients. És el que has de fer servir per migrar a una versió nova de l'app sense perdre res — descarrega'l aquí i puja'l a la versió nova.</p>
+    <label>Importa dades</label>
+    <button class="save sky" onclick="document.getElementById('impFile').click()">Puja un fitxer (CSV o JSON)</button>
+    <p class="hint">Tria un fitxer descarregat abans des d'aquesta app. S'afegeix al que ja tens; les files repetides s'ignoren.</p>
+    <label>…o enganxa el text</label>
+    <textarea id="impBox" placeholder="Enganxa aquí un CSV o una còpia JSON…" style="font-family:var(--mono);font-size:11px;min-height:110px"></textarea>
+    <button class="ghost" onclick="importCSV()">Importa el text enganxat</button>
+    <p class="hint">Les files repetides (mateixa data, hora i concepte) s'ignoren.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="impFile" accept=".csv,.json,.txt" style="display:none" onchange="loadFile(event)">
+
+<script>
+/* ============================================================
+   BASE D'INGREDIENTS — valors per 100 g / 100 ml
+   [kcal, proteïna, hidrats, greix, quantitats ràpides]
+   ============================================================ */
+const DB = {
+/* --- CARN I AUS --- */
+"Pit de pollastre":[165,31,0,3.6,[150,200,250,300],"carn"],
+"Cuixa de pollastre":[209,26,0,11,[150,200,250],"carn"],
+"Ala de pollastre":[203,30,0,8.1,[100,150],"carn"],
+"Gall dindi filetejat":[135,29,0,1.5,[100,150,200],"carn"],
+"Cuixa de gall dindi":[144,24,0,4.9,[150,200],"carn"],
+"Vedella magra":[143,21,0,6,[150,200,250],"carn"],
+"Entrecot de vedella":[271,25,0,19,[200,250,300],"carn"],
+"Hamburguesa de vedella":[254,26,0,17,[125,200],"carn"],
+"Carn picada de vedella (5% greix)":[137,21,0,5,[150,200,250],"carn"],
+"Llom de porc":[143,21,0,6,[150,200],"carn"],
+"Filet de porc":[143,21,0,6,[150,200],"carn"],
+"Secret de porc":[290,18,0,24,[150,200],"carn"],
+"Costella de porc":[277,19,0,22,[150,200],"carn"],
+"Cansalada":[500,12,0,50,[30,60],"carn"],
+"Bacon":[541,37,1.4,42,[30,50],"carn"],
+"Xai":[258,25,0,17,[150,200],"carn"],
+"Conill":[173,33,0,3.5,[150,200],"carn"],
+"Ànec (pit)":[201,24,0,11,[150,200],"carn"],
+"Botifarra":[310,15,1,27,[100,150],"carn"],
+"Botifarra negra":[350,15,3,31,[80,120],"carn"],
+"Xoriço":[455,24,2,38,[30,50],"carn"],
+"Fuet":[420,25,1,35,[30,50],"carn"],
+"Salsitxes de porc":[300,13,2,26,[100,150],"carn"],
+"Pernil dolç":[107,18,1.5,3,[40,60,100],"carn"],
+"Pernil salat":[241,31,0,13,[30,60,80],"carn"],
+"Pernil ibèric":[375,31,0,28,[30,50],"carn"],
+"Mortadel·la":[311,12,2,28,[30,50],"carn"],
+"Cap i pota":[230,18,2,17,[200,300],"carn"],
+"Fetge de vedella":[135,20,3.9,3.6,[150,200],"carn"],
+
+/* --- PEIX I MARISC --- */
+"Lluç":[86,17,0,1.8,[150,200,250],"peix"],
+"Bacallà":[82,18,0,0.7,[150,200,250],"peix"],
+"Bacallà salat (dessalat)":[105,23,0,1,[150,200],"peix"],
+"Salmó":[208,20,0,13,[120,150,200],"peix"],
+"Salmó fumat":[181,25,0,9,[50,100],"peix"],
+"Tonyina fresca":[144,23,0,5,[150,200],"peix"],
+"Tonyina en llauna (natural)":[116,26,0,1,[52,80,104],"peix"],
+"Tonyina en llauna (oli)":[190,25,0,10,[52,80,104],"peix"],
+"Sardina":[208,25,0,11,[100,150],"peix"],
+"Sardines en llauna (oli)":[208,24,0,11,[50,85],"peix"],
+"Verat / cavalla":[205,19,0,14,[150,200],"peix"],
+"Orada":[105,20,0,2.5,[200,250,300],"peix"],
+"Llobarro":[97,18,0,2.5,[200,250,300],"peix"],
+"Panga":[90,15,0,3,[150,200],"peix"],
+"Rap":[76,15,0,1.5,[150,200],"peix"],
+"Truita de riu":[148,21,0,7,[150,200],"peix"],
+"Anxoves":[210,29,0,10,[15,30],"peix"],
+"Gambes":[99,24,0.2,0.3,[100,150,200],"peix"],
+"Musclos":[86,12,3.7,2.2,[150,250],"peix"],
+"Calamars":[92,16,3,1.4,[150,200],"peix"],
+"Sípia":[79,16,0.8,0.7,[150,200],"peix"],
+"Pop":[82,15,2.2,1,[150,200],"peix"],
+"Cloïsses":[74,13,2.6,1,[100,150],"peix"],
+"Surimi":[99,8,15,1,[100,150],"peix"],
+
+/* --- OUS I LÀCTICS --- */
+"Ou":[143,12.6,0.7,9.5,[60,120,180],"lactic"],
+"Clara d'ou":[52,11,0.7,0.2,[100,200],"lactic"],
+"Rovell d'ou":[322,16,3.6,27,[17,34],"lactic"],
+"Llet sencera":[61,3.2,4.8,3.3,[200,250,300],"lactic"],
+"Llet semidesnatada":[46,3.3,4.8,1.6,[200,250,300],"lactic"],
+"Llet desnatada":[34,3.4,5,0.1,[200,250,300],"lactic"],
+"Llet sense lactosa":[47,3.3,4.7,1.6,[200,250],"lactic"],
+"Beguda de soja":[43,3.3,2.6,1.8,[200,250],"lactic"],
+"Beguda d'ametlla":[24,0.6,3,1.1,[200,250],"lactic"],
+"Beguda d'avena":[46,0.9,7.5,1.4,[200,250],"lactic"],
+"Iogurt natural":[61,3.5,4.7,3.3,[125,250],"lactic"],
+"Iogurt natural desnatat":[45,4.4,6,0.1,[125,250],"lactic"],
+"Iogurt grec natural":[97,9,4,5,[125,250],"lactic"],
+"Iogurt grec de sabors":[120,3.5,14,5.5,[125],"lactic"],
+"Iogurt cremós":[67,3.8,4.7,3.2,[125,250],"lactic"],
+"Kèfir":[55,3.3,4.5,2.5,[200,250],"lactic"],
+"YoPro (beure)":[65,10,3.6,0.1,[250],"lactic"],
+"Formatge fresc / cottage":[98,11,3.4,4.3,[100,150,200],"lactic"],
+"Mató":[97,13,3,3.6,[100,150],"lactic"],
+"Quark":[68,12,4,0.3,[125,250],"lactic"],
+"Formatge feta":[264,14,4,21,[30,40,60],"lactic"],
+"Mozzarella":[280,22,2.2,20,[50,100,125],"lactic"],
+"Formatge edam":[357,25,1.4,28,[20,40,60],"lactic"],
+"Parmesà":[392,36,4,25,[10,20,30],"lactic"],
+"Emmental":[380,28,1.4,29,[30,50],"lactic"],
+"Cheddar":[403,25,1.3,33,[30,50],"lactic"],
+"Manxego curat":[430,32,0.5,33,[30,50],"lactic"],
+"Formatge de cabra":[364,22,2.5,30,[30,50],"lactic"],
+"Formatge ratllat":[380,28,3,28,[20,30],"lactic"],
+"Nata per cuinar":[195,2.5,3.5,19,[50,100],"lactic"],
+"Mantega":[717,0.9,0.1,81,[10,15],"lactic"],
+
+/* --- LLEGUMS I VEGETALS PROTEICS --- */
+"Cigrons cuits":[120,7,18,2.6,[120,240,400],"llegum"],
+"Cigrons secs":[364,19,61,6,[80,100],"llegum"],
+"Llenties cuites":[116,9,20,0.4,[150,250,400],"llegum"],
+"Llenties seques":[353,25,60,1.1,[80,100],"llegum"],
+"Mongetes blanques cuites":[139,9,25,0.5,[150,250],"llegum"],
+"Mongetes pintes cuites":[143,9,26,0.7,[150,250],"llegum"],
+"Fesols cuits":[127,9,23,0.5,[150,250],"llegum"],
+"Pèsols":[81,5.4,14,0.4,[150,200],"llegum"],
+"Faves":[88,7.9,12,0.7,[150,200],"llegum"],
+"Edamame":[121,12,9,5,[100,150],"llegum"],
+"Tofu":[76,8,1.9,4.8,[100,150,200],"llegum"],
+"Tofu ferm":[144,17,2.8,8,[100,150,200],"llegum"],
+"Tempeh":[192,19,9,11,[100,150],"llegum"],
+"Soja texturitzada (seca)":[336,52,14,1.5,[30,50],"llegum"],
+"Hummus":[166,8,14,10,[50,100],"llegum"],
+
+/* --- CEREALS I TUBERCLES --- */
+"Arròs blanc (cru)":[360,7,79,0.9,[80,100,120,150],"cereal"],
+"Arròs blanc (cuit)":[130,2.7,28,0.3,[200,300,400],"cereal"],
+"Arròs integral (cru)":[367,8,76,2.9,[80,100,120],"cereal"],
+"Arròs integral (cuit)":[123,2.7,26,1,[200,300],"cereal"],
+"Arròs basmati (cru)":[356,8,78,1,[80,100,120],"cereal"],
+"Pasta / macarrons (cru)":[371,13,75,1.5,[80,100,120,150],"cereal"],
+"Pasta (cuita)":[158,5.8,31,0.9,[200,300,400],"cereal"],
+"Pasta integral (crua)":[348,14,66,2.5,[80,100,120],"cereal"],
+"Cuscús (cru)":[376,13,77,0.6,[60,80,100],"cereal"],
+"Quinoa (crua)":[368,14,64,6,[60,80,100],"cereal"],
+"Quinoa (cuita)":[120,4.4,21,1.9,[150,250],"cereal"],
+"Blat sarraí (cru)":[343,13,72,3.4,[60,80],"cereal"],
+"Civada en flocs":[389,13,66,7,[40,60,80],"cereal"],
+"Muesli":[363,10,66,6,[40,60],"cereal"],
+"Granola":[471,10,64,20,[40,60],"cereal"],
+"Cereals de blat de moro":[357,7,84,0.9,[30,50],"cereal"],
+"Pa integral":[247,9,41,3.4,[40,60,80,100],"cereal"],
+"Pa blanc / de pagès":[265,9,49,3.2,[40,60,80,100],"cereal"],
+"Pa de motlle":[265,8,47,4,[30,60,90],"cereal"],
+"Pa de sègol":[259,9,48,3.3,[40,60],"cereal"],
+"Torrada":[265,9,49,3.2,[25,50,75],"cereal"],
+"Pa ratllat":[395,13,72,5.3,[20,40],"cereal"],
+"Fajita / tortilla de blat":[310,8,50,8,[45,90,135],"cereal"],
+"Galetes maria":[440,7,74,12,[25,50],"cereal"],
+"Galetes d'arròs":[387,8,81,3,[10,20],"cereal"],
+"Barreta energètica":[380,8,65,10,[40,50],"cereal"],
+"Patata":[77,2,17,0.1,[200,300,400],"cereal"],
+"Moniato":[86,1.6,20,0.1,[200,300],"cereal"],
+"Blat de moro dolç":[86,3.3,19,1.2,[100,150],"cereal"],
+"Iuca / mandioca":[160,1.4,38,0.3,[150,200],"cereal"],
+
+/* --- VERDURA --- */
+"Tomàquet":[18,0.9,3.9,0.2,[100,125,200],"verdura"],
+"Tomàquet fregit":[82,1.5,10,4,[50,100],"verdura"],
+"Tomàquet triturat":[24,1.2,4,0.3,[100,200],"verdura"],
+"Enciam / amanida":[15,1.4,2.9,0.2,[80,100,150],"verdura"],
+"Ruca":[25,2.6,3.7,0.7,[40,80],"verdura"],
+"Espinacs":[23,2.9,3.6,0.4,[80,150,200],"verdura"],
+"Bledes":[19,1.8,3.7,0.2,[150,200],"verdura"],
+"Bròquil":[34,2.8,7,0.4,[150,200,250],"verdura"],
+"Coliflor":[25,1.9,5,0.3,[150,200],"verdura"],
+"Col":[25,1.3,6,0.1,[150,200],"verdura"],
+"Col llombarda":[31,1.4,7,0.2,[100,150],"verdura"],
+"Cols de Brussel·les":[43,3.4,9,0.3,[150,200],"verdura"],
+"Carbassó":[17,1.2,3.1,0.3,[150,200,250],"verdura"],
+"Albergínia":[25,1,6,0.2,[150,200],"verdura"],
+"Pebrot":[31,1,6,0.3,[100,150,200],"verdura"],
+"Ceba":[40,1.1,9.3,0.1,[50,100,150],"verdura"],
+"Porro":[61,1.5,14,0.3,[100,150],"verdura"],
+"All":[149,6.4,33,0.5,[5,10],"verdura"],
+"Pastanaga":[41,0.9,10,0.2,[80,120],"verdura"],
+"Api":[16,0.7,3,0.2,[80,120],"verdura"],
+"Cogombre":[15,0.7,3.6,0.1,[100,150],"verdura"],
+"Carbassa":[26,1,6.5,0.1,[150,250],"verdura"],
+"Mongeta tendra":[31,1.8,7,0.1,[150,200],"verdura"],
+"Espàrrecs":[20,2.2,3.9,0.1,[100,150],"verdura"],
+"Xampinyons":[22,3.1,3.3,0.3,[100,150],"verdura"],
+"Bolets variats":[25,2.5,4,0.4,[100,150],"verdura"],
+"Remolatxa":[43,1.6,10,0.2,[80,120],"verdura"],
+"Endívia":[17,1.3,3.4,0.2,[80,120],"verdura"],
+"Escarola":[17,1.3,3.4,0.2,[80,120],"verdura"],
+"Alvocat":[160,2,9,15,[70,140],"verdura"],
+"Olives":[145,1,6,15,[25,50],"verdura"],
+"Gaspatxo":[40,0.8,3.5,2.5,[200,250,330],"verdura"],
+"Salmorejo":[100,2.5,7,7,[200,250],"verdura"],
+
+/* --- FRUITA --- */
+"Plàtan":[89,1.1,23,0.3,[105,120,150],"fruita"],
+"Poma":[52,0.3,14,0.2,[150,200],"fruita"],
+"Pera":[57,0.4,15,0.1,[150,200],"fruita"],
+"Taronja":[47,0.9,12,0.1,[150,200],"fruita"],
+"Mandarina":[53,0.8,13,0.3,[100,150],"fruita"],
+"Préssec":[39,0.9,10,0.3,[150,200],"fruita"],
+"Nectarina":[44,1.1,11,0.3,[150,200],"fruita"],
+"Albercoc":[48,1.4,11,0.4,[100,150],"fruita"],
+"Pruna":[46,0.7,11,0.3,[100,150],"fruita"],
+"Cireres":[63,1.1,16,0.2,[100,150],"fruita"],
+"Raïm":[69,0.7,18,0.2,[100,150],"fruita"],
+"Meló":[34,0.8,8,0.2,[200,300],"fruita"],
+"Síndria":[30,0.6,7.6,0.2,[200,300],"fruita"],
+"Maduixes":[32,0.7,7.7,0.3,[100,150],"fruita"],
+"Fruits vermells":[45,0.8,10,0.3,[80,120],"fruita"],
+"Nabius":[57,0.7,14,0.3,[80,120],"fruita"],
+"Kiwi":[61,1.1,15,0.5,[100,150],"fruita"],
+"Pinya":[50,0.5,13,0.1,[150,200],"fruita"],
+"Mango":[60,0.8,15,0.4,[150,200],"fruita"],
+"Figues":[74,0.8,19,0.3,[100,150],"fruita"],
+"Dàtils":[282,2.5,75,0.4,[25,50],"fruita"],
+"Panses":[299,3.1,79,0.5,[25,40],"fruita"],
+"Orellanes":[241,3.4,63,0.5,[30,50],"fruita"],
+
+/* --- FRUITS SECS I LLAVORS --- */
+"Nous":[654,15,14,65,[20,30,40],"secs"],
+"Ametlles":[579,21,22,50,[20,30,40],"secs"],
+"Avellanes":[628,15,17,61,[20,30],"secs"],
+"Anacards":[553,18,30,44,[20,30],"secs"],
+"Pistatxos":[560,20,28,45,[20,30],"secs"],
+"Cacauets":[567,26,16,49,[20,30],"secs"],
+"Pipes de gira-sol":[584,21,20,51,[20,30],"secs"],
+"Pipes de carbassa":[559,30,11,49,[20,30],"secs"],
+"Llavors de xia":[486,17,42,31,[15,25],"secs"],
+"Llavors de lli":[534,18,29,42,[15,25],"secs"],
+"Sèsam":[573,18,23,50,[10,20],"secs"],
+"Crema de cacauet 100%":[588,25,20,50,[15,30,45],"secs"],
+"Crema d'ametlla":[614,21,19,56,[15,30],"secs"],
+"Tahini":[595,17,21,54,[15,30],"secs"],
+
+/* --- GREIXOS I SALSES --- */
+"Oli d'oliva":[884,0,0,100,[10,15,20],"greix"],
+"Oli de gira-sol":[884,0,0,100,[10,15],"greix"],
+"Oli de coco":[892,0,0,99,[10,15],"greix"],
+"Margarina":[717,0.2,0.7,80,[10,15],"greix"],
+"Maionesa":[680,1,1.3,75,[15,30],"greix"],
+"Quètxup":[112,1.3,26,0.1,[15,30],"greix"],
+"Mostassa":[66,4,5,4,[10,20],"greix"],
+"Salsa de soja":[53,8,5,0.1,[10,20],"greix"],
+"Vinagre":[19,0,0.9,0,[10,15],"greix"],
+"Curri / espècies":[0,0,0,0,[5],"greix"],
+
+/* --- DOLÇOS --- */
+"Sucre":[400,0,100,0,[5,10],"dolc"],
+"Mel":[304,0.3,82,0,[10,20,30],"dolc"],
+"Melmelada":[250,0.4,60,0.1,[15,30],"dolc"],
+"Xocolata negra 70%":[598,7.8,46,43,[20,30],"dolc"],
+"Xocolata negra 85%":[584,12,29,50,[20,30],"dolc"],
+"Xocolata amb llet":[535,7.6,59,30,[20,30],"dolc"],
+"Cacau en pols desgreixat":[228,20,58,11,[10,20],"dolc"],
+"Crema de cacau i avellanes":[539,6,57,31,[15,30],"dolc"],
+"Gelat de vainilla":[207,3.5,24,11,[80,120],"dolc"],
+"Croissant":[406,8,46,21,[60,90],"dolc"],
+"Magdalena":[377,6,50,17,[40,80],"dolc"],
+"Xurros":[356,5,40,19,[60,100],"dolc"],
+
+/* --- BEGUDES --- */
+"Cafè sol":[2,0.1,0,0,[100],"beguda"],
+"Te / infusió":[1,0,0.2,0,[200,250],"beguda"],
+"Suc de taronja natural":[45,0.7,10,0.2,[200,250],"beguda"],
+"Refresc de cola":[42,0,10.6,0,[330,500],"beguda"],
+"Refresc de cola zero":[0.3,0,0,0,[330,500],"beguda"],
+"Orxata":[98,1,15,3.6,[200,250,330],"beguda"],
+"Cervesa":[43,0.5,3.6,0,[330,500],"beguda"],
+"Cervesa sense alcohol":[26,0.4,5.6,0,[330],"beguda"],
+"Vi negre":[85,0.1,2.6,0,[125,150],"beguda"],
+"Vi blanc":[82,0.1,2.6,0,[125,150],"beguda"],
+
+/* --- SUPLEMENTS --- */
+"Proteïna whey":[400,80,8,6,[30,60],"suplement"],
+"Impact Whey Gainer":[388,31,51,6,[50,100],"suplement"],
+"Caseïna":[370,75,8,3,[30,40],"suplement"],
+"Isotònic ISO (pols)":[370,0,86,0,[17,35],"suplement"],
+
+/* --- PLATS PREPARATS --- */
+"Truita de patata":[200,6,15,13,[150,200,250],"plat"],
+"Truita francesa (2 ous)":[154,11,0.6,12,[110,150],"plat"],
+"Pizza margarita":[266,11,33,10,[150,250],"plat"],
+"Croquetes":[280,8,26,16,[100,150],"plat"],
+"Empanada":[275,8,30,14,[100,150],"plat"],
+"Canelons":[180,9,17,8,[200,300],"plat"],
+"Paella de marisc":[156,9,20,4,[300,400],"plat"],
+"Sushi (maki)":[145,5,30,0.8,[150,200],"plat"],
+"Amanida cèsar":[190,9,7,15,[200,300],"plat"],
+"Cap i pota":[230,18,2,17,[200,300],"plat"]
+};
+
+const SPORTS = ["Córrer","Natació en piscina","Natació en aigües obertes","Gimnàs",
+                "Assaig de castells","Bicicleta","Senderisme","Altres"];
+const CATS = {meus:"Els meus",carn:"Carn",peix:"Peix",lactic:"Ous i làctics",llegum:"Llegums",cereal:"Cereals",
+              verdura:"Verdura",fruita:"Fruita",secs:"Fruits secs",greix:"Greixos",dolc:"Dolços",
+              beguda:"Begudes",suplement:"Suplements",plat:"Plats"};
+const MEALS  = ["Esmorzar","Mig matí","Dinar","Berenar","Sopar","Post-assaig"];
+const GOALS  = {kcal:3000,p:185,c:340,f:95};
+const KEY    = 'registre:v1';
+const API    = 'https://script.google.com/macros/s/AKfycbxPw5Ud9Ek3hZJZt2ySPHWI8S1W2G1QGcmn1InG-2SehJuqZxjkBIf0pkr2-C-rOg1Z/exec';
+const USER   = 'alex';   // el teu perfil; els companys tindran el seu
+
+let D = {trainings:[],foods:[],sleep:[],custom:{},recents:[]};
+let sport = SPORTS[0], meal = MEALS[0], basket = [], pending = null, detail = null, showAll = false, cat = '';
+
+/* ---------------- emmagatzematge: Google Sheets + memòria cau local ---------------- */
+const num = v => (v==='' || v===null || v===undefined) ? null : (isNaN(parseFloat(v)) ? null : parseFloat(v));
+let online = false;
+
+// desa la còpia local (cau) — instantani, perquè l'app mai perdi res
+function saveLocal(){
+  try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){}
+}
+function loadLocal(){
+  try{ const t = localStorage.getItem(KEY); if(t) D = Object.assign(D, JSON.parse(t)); }catch(e){}
+  if(!D.sleep) D.sleep = [];
+}
+
+// converteix una fila del full en un objecte intern
+function rowToEntry(r){
+  const t = r.tipus;
+  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts:+r.ts, sport:r.esport_o_apat,
+    km:num(r.km), min:num(r.minuts), fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:r.ref_fit||'', notes:r.notes||''}};
+  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts:+r.ts, inH:r.hora||'', outH:r.detall||'',
+    tot:num(r.son_total_min)||0, real:num(r.son_real_min), score:num(r.puntuacio), cont:num(r.continuitat),
+    light:num(r.lleuger_min), deep:num(r.profund_min), rem:num(r.rem_min), intr:num(r.interrupcions_min),
+    hrv:num(r.vfc_ms), rhr:num(r.fc_repos), br:num(r.resp_rpm), rech:r.recharge||'', notes:r.notes||''}};
+  return {tbl:'foods', o:{id:r.id, ts:+r.ts, meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
+    kcal:num(r.kcal)||0, p:num(r.proteina_g)||0, c:num(r.hidrats_g)||0, f:num(r.greix_g)||0}};
+}
+// converteix un objecte intern en una fila del full
+function entryToRow(tbl, o){
+  const base = {id:o.id, usuari:USER, ts:o.ts};
+  if(tbl === 'trainings') return {...base, tipus:'entrenament', esport_o_apat:o.sport,
+    km:o.km??'', minuts:o.min??'', fc_mitjana:o.fc??'', fc_max:o.fcMax??'', ref_fit:o.fit||'', notes:o.notes||''};
+  if(tbl === 'sleep') return {...base, tipus:'son', hora:o.inH||'', detall:o.outH||'', notes:o.notes||'',
+    son_total_min:o.tot??'', son_real_min:o.real??'', puntuacio:o.score??'', continuitat:o.cont??'',
+    lleuger_min:o.light??'', profund_min:o.deep??'', rem_min:o.rem??'', interrupcions_min:o.intr??'',
+    vfc_ms:o.hrv??'', fc_repos:o.rhr??'', resp_rpm:o.br??'', recharge:o.rech||''};
+  return {...base, tipus:'menjar', esport_o_apat:o.meal, detall:o.name, quantitat_g:o.grams,
+    kcal:Math.round(o.kcal), proteina_g:(+o.p).toFixed(1), hidrats_g:(+o.c).toFixed(1), greix_g:(+o.f).toFixed(1)};
+}
+
+// llegeix tot el full i reconstrueix D (els ingredients propis viuen només en local)
+async function pullFromCloud(){
+  const res = await fetch(`${API}?accio=llegir&usuari=${encodeURIComponent(USER)}`);
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error||'error');
+  const T=[], F=[], S=[];
+  j.files.forEach(r=>{ const e = rowToEntry(r);
+    if(e.tbl==='trainings') T.push(e.o); else if(e.tbl==='sleep') S.push(e.o); else F.push(e.o); });
+  D.trainings = T; D.foods = F; D.sleep = S;
+  saveLocal();
+}
+// envia una fila nova al full
+async function pushRow(tbl, o){
+  const fila = entryToRow(tbl, o);
+  const res = await fetch(`${API}?accio=desar&usuari=${encodeURIComponent(USER)}`, {
+    method:'POST', body:JSON.stringify(fila),
+    headers:{'Content-Type':'text/plain;charset=utf-8'} });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error||'error');
+}
+// esborra una fila del full pel seu id
+async function deleteRow(id){
+  const res = await fetch(`${API}?accio=esborrar&usuari=${encodeURIComponent(USER)}&id=${encodeURIComponent(id)}`);
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error||'error');
+}
+
+let syncing = false;
+function setSync(on){
+  online = on;
+  const el = document.getElementById('syncDot');
+  if(el){ el.style.background = on ? 'var(--moss)' : 'var(--rust)';
+          el.title = on ? 'Sincronitzat amb el núvol' : 'Sense connexió — es guarda en local'; }
+}
+
+async function load(){
+  loadLocal(); render();               // 1r: pinta el que hi ha en local (instantani)
+  try{
+    await pullFromCloud();             // 2n: baixa la versió del núvol
+    setSync(true); render();
+  }catch(e){ setSync(false); }         // sense connexió: seguim amb la còpia local
+}
+
+// desar genèric mantingut per compatibilitat (ingredients propis, recents…): només local
+async function save(){ saveLocal(); }
+
+/* ---------------- utilitats ---------------- */
+const pad = n => String(n).padStart(2,'0');
+const dstr = d => `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+const hstr = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const isToday = ts => new Date(ts).toDateString() === new Date().toDateString();
+const hm = m => m ? `${Math.floor(m/60)}h${pad(m%60)}` : '—';
+function allIng(){ return Object.assign({}, DB, D.custom); }
+// desa una entrada nova: a la taula local, en cau, i al núvol
+async function pushEntry(tbl, o){
+  D[tbl].push(o);
+  saveLocal(); render();
+  try{ await pushRow(tbl, o); setSync(true); }
+  catch(e){ setSync(false); toast('Desat en local; se sincronitzarà quan reconnectis.'); }
+}
+async function removeEntry(tbl, id){
+  D[tbl] = D[tbl].filter(x=>x.id!==id);
+  saveLocal(); render();
+  try{ await deleteRow(id); setSync(true); }
+  catch(e){ setSync(false); toast('Esborrat en local; el núvol s\'actualitzarà en reconnectar.'); }
+}
+
+/* prefixa els camps de data i hora amb el moment actual del dispositiu */
+function fillNow(dId,tId){
+  const n = new Date();
+  document.getElementById(dId).value = `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;
+  document.getElementById(tId).value = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+}
+/* llegeix els camps del formulari i en fa una marca de temps */
+function readTs(dId,tId){
+  const d = document.getElementById(dId).value, t = document.getElementById(tId).value;
+  if(!d || !t) return Date.now();
+  const [Y,M,D_] = d.split('-').map(Number), [h,m] = t.split(':').map(Number);
+  const ts = new Date(Y, M-1, D_, h, m, 0, 0).getTime();
+  return isNaN(ts) ? Date.now() : ts;
+}
+let tmr;
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(tmr); tmr = setTimeout(()=>t.classList.remove('on'),2300);
+}
+function open_(id){ document.getElementById(id).classList.add('on'); }
+function close_(id){ document.getElementById(id).classList.remove('on'); }
+
+/* ---------------- pantalla principal ---------------- */
+function render(){
+  const now = new Date();
+  document.getElementById('todayTxt').textContent =
+    now.toLocaleDateString('ca-ES',{weekday:'long',day:'numeric',month:'long'});
+
+  const tf = D.foods.filter(f=>isToday(f.ts));
+  const K = tf.reduce((s,f)=>s+f.kcal,0), P = tf.reduce((s,f)=>s+f.p,0),
+        C = tf.reduce((s,f)=>s+f.c,0),    F = tf.reduce((s,f)=>s+f.f,0);
+
+  document.getElementById('kcalNow').textContent = Math.round(K).toLocaleString('ca-ES');
+  document.getElementById('kcalGoal').textContent = `de ${GOALS.kcal.toLocaleString('ca-ES')} kcal`;
+  const set=(id,v,g)=>{document.getElementById(id+'Bar').style.width=Math.min(100,v/g*100)+'%';
+                        document.getElementById(id+'Now').textContent=Math.round(v)+' g';};
+  set('p',P,GOALS.p); set('c',C,GOALS.c); set('f',F,GOALS.f);
+
+  const tt = D.trainings.filter(t=>isToday(t.ts));
+  document.getElementById('trainMark').innerHTML = tt.length
+    ? tt.map(t=>`<span class="tm">${t.sport}${t.min?' · '+t.min+' min':''}</span>`).join('')
+    : 'Cap entrenament registrat avui';
+
+  const lastS = [...D.sleep].sort((a,b)=>b.ts-a.ts)[0];
+  document.getElementById('sleepMark').innerHTML = lastS
+    ? `<span class="tm" style="background:var(--sky)">Son ${hm(lastS.tot)}${lastS.score?' · '+lastS.score+'/100':''}</span>
+       <span style="align-self:center">${isToday(lastS.ts)?'aquesta nit':dstr(new Date(lastS.ts))}</span>`
+    : '';
+
+  const all = [...D.trainings.map(t=>({...t,k:'t'})), ...D.foods.map(f=>({...f,k:'f'})),
+               ...D.sleep.map(z=>({...z,k:'s'}))].sort((a,b)=>b.ts-a.ts);
+  const list = showAll ? all : all.filter(e=>isToday(e.ts));
+  document.getElementById('allBtn').textContent = showAll ? 'Només avui' : 'Veure-ho tot';
+
+  document.getElementById('log').innerHTML = list.length ? list.map(e=>{
+    const d = new Date(e.ts);
+    const when = (showAll && !isToday(e.ts) ? dstr(d)+' · ' : '') + hstr(d);
+    if(e.k==='t'){
+      const bits=[e.km?e.km+' km':null, e.min?e.min+' min':null, e.fc?e.fc+' ppm':null].filter(Boolean);
+      return `<button class="row" onclick="openDet('t','${e.id}')">
+        <div class="dot" style="background:var(--moss)"></div>
+        <div class="m"><b>${e.sport}</b><small>${when}${bits.length?' · '+bits.join(' · '):''}</small></div>
+        <div class="r"><b>${e.min||'—'}</b>min</div></button>`;
+    }
+    if(e.k==='s'){
+      const bits=[e.score?e.score+'/100':null, e.rem?'REM '+e.rem+"'":null, e.hrv?'VFC '+e.hrv:null].filter(Boolean);
+      return `<button class="row" onclick="openDet('s','${e.id}')">
+        <div class="dot" style="background:var(--sky)"></div>
+        <div class="m"><b>Son</b><small>${when}${bits.length?' · '+bits.join(' · '):''}</small></div>
+        <div class="r"><b>${hm(e.tot)}</b>son</div></button>`;
+    }
+    return `<button class="row" onclick="openDet('f','${e.id}')">
+      <div class="dot" style="background:var(--ember)"></div>
+      <div class="m"><b>${e.name}</b><small>${when} · ${e.meal} · ${e.grams} g</small></div>
+      <div class="r"><b>${Math.round(e.kcal)}</b>kcal</div></button>`;
+  }).join('') : `<div class="empty">Encara no hi ha res${showAll?'':' avui'}.<br>Comença per un entrenament o un àpat.</div>`;
+
+  document.getElementById('dlSub').textContent =
+    `${D.trainings.length} entrenaments · ${D.foods.length} aliments · ${D.sleep.length} nits`;
+}
+function toggleAll(){ showAll = !showAll; render(); }
+
+/* ---------------- entrenament ---------------- */
+function sportChips(){
+  document.getElementById('sportChips').innerHTML = SPORTS.map(s=>
+    `<button class="chip${s===sport?' on':''}" onclick="pickSport('${s}')">${s}</button>`).join('');
+}
+function openTrain(){
+  fillNow('tDate','tTime');
+  sportChips();
+  open_('shTrain');
+}
+function pickSport(s){ sport = s; sportChips(); }
+async function saveTrain(){
+  const v = id => document.getElementById(id).value.trim();
+  const min = v('tMin'), km = v('tKm');
+  if(!min && !km){ toast('Posa-hi almenys el temps o la distància.'); return; }
+  const o = {id:'t'+Date.now(), ts:readTs('tDate','tTime'), sport,
+    km:km?parseFloat(km):null, min:min?parseInt(min):null,
+    fc:v('tFc')?parseInt(v('tFc')):null, fcMax:v('tFcMax')?parseInt(v('tFcMax')):null,
+    fit:v('tFit'), notes:v('tNotes')};
+  ['tKm','tMin','tFc','tFcMax','tFit','tNotes'].forEach(i=>document.getElementById(i).value='');
+  close_('shTrain'); toast('Entrenament desat');
+  await pushEntry('trainings', o);
+}
+
+/* ---------------- menjar ---------------- */
+function mealChips(){
+  document.getElementById('mealChips').innerHTML = MEALS.map(m=>
+    `<button class="chip${m===meal?' on amb':''}" onclick="pickMeal('${m}')">${m}</button>`).join('');
+}
+function openFood(){
+  fillNow('fDate','fTime');
+  meal = D.lastMeal || MEALS[0];
+  mealChips(); renderIng(); renderBasket(); open_('shFood');
+}
+function pickMeal(m){ meal = m; mealChips(); }
+
+function pickCat(c){ cat = (cat===c?'':c); renderIng(); }
+function renderIng(){
+  const cb = document.getElementById('catBar');
+  if(cb) cb.innerHTML = Object.keys(CATS).map(c=>
+    `<button class="chip${c===cat?' on sky':''}" onclick="pickCat('${c}')">${CATS[c]}</button>`).join('');
+  const q = (document.getElementById('q').value||'').toLowerCase().trim();
+  const ing = allIng();
+  let names = Object.keys(ing);
+  if(cat) names = names.filter(n=>(ing[n][5]||'')===cat);
+  if(q) names = names.filter(n=>n.toLowerCase().includes(q));
+  else if(!cat) names = [...D.recents.filter(n=>ing[n]), ...names.filter(n=>!D.recents.includes(n))];
+  names = names.slice(0,(q||cat)?60:26);
+
+  let html = names.map(n=>{
+    const m = ing[n];
+    return `<button class="ing" onclick="pickIng(${JSON.stringify(n).replace(/"/g,'&quot;')})">
+      <b>${n}</b><small>${m[0]} kcal · ${m[1]}P</small></button>`;
+  }).join('');
+  html += `<button class="ing" onclick="openNew()" style="border-style:dashed">
+    <b>Afegeix un ingredient nou</b><span class="tagnew">NOU</span></button>`;
+  html += `<button class="ing" onclick="openMine()" style="border-style:dashed">
+    <b>Els meus ingredients</b><small>${Object.keys(D.custom).length}</small></button>`;
+  document.getElementById('ingList').innerHTML = html;
+}
+
+function pickIng(name){
+  const m = allIng()[name];
+  pending = {name, m};
+  document.getElementById('qtyName').textContent = name;
+  const def = m[4] && m[4][0] ? m[4][0] : 100;
+  document.getElementById('qtyVal').value = def;
+  document.getElementById('qtyChips').innerHTML = (m[4]||[50,100,150,200]).map(x=>
+    `<button class="chip" onclick="setQty(${x})">${x} g</button>`).join('');
+  prevQty(); open_('shQty');
+}
+function setQty(x){ document.getElementById('qtyVal').value = x; prevQty(); }
+function prevQty(){
+  const g = parseFloat(document.getElementById('qtyVal').value)||0, m = pending.m, r = g/100;
+  document.getElementById('qtyPrev').innerHTML =
+    `<b style="color:var(--paper)">${Math.round(m[0]*r)} kcal</b> · ${(m[1]*r).toFixed(1)} g proteïna · ${(m[2]*r).toFixed(1)} g hidrats · ${(m[3]*r).toFixed(1)} g greix`;
+}
+document.addEventListener('input', e=>{ if(e.target.id==='qtyVal' && pending) prevQty(); });
+
+function addToBasket(){
+  const g = parseFloat(document.getElementById('qtyVal').value);
+  if(!g || g<=0){ toast('Posa-hi una quantitat.'); return; }
+  const m = pending.m, r = g/100;
+  basket.push({name:pending.name, grams:g, kcal:m[0]*r, p:m[1]*r, c:m[2]*r, f:m[3]*r});
+  D.recents = [pending.name, ...D.recents.filter(n=>n!==pending.name)].slice(0,14);
+  close_('shQty'); document.getElementById('q').value=''; renderIng(); renderBasket();
+}
+function renderBasket(){
+  const b = document.getElementById('basket');
+  document.getElementById('saveFoodBtn').disabled = basket.length===0;
+  if(!basket.length){ b.style.display='none'; return; }
+  b.style.display='block';
+  const T = basket.reduce((s,x)=>({k:s.k+x.kcal,p:s.p+x.p,c:s.c+x.c,f:s.f+x.f}),{k:0,p:0,c:0,f:0});
+  b.innerHTML = basket.map((x,i)=>`<div class="bk"><b>${x.name}</b><small>${x.grams} g</small>
+      <button class="rm" onclick="rmBasket(${i})">×</button></div>`).join('') +
+    `<div class="bk-tot"><span>${basket.length} ingredient${basket.length>1?'s':''}</span>
+      <span><b>${Math.round(T.k)} kcal</b> · ${T.p.toFixed(0)}P · ${T.c.toFixed(0)}H · ${T.f.toFixed(0)}G</span></div>`;
+}
+function rmBasket(i){ basket.splice(i,1); renderBasket(); }
+
+async function saveFood(){
+  const ts = readTs('fDate','fTime'), uid = Date.now();
+  const items = basket.map((x,i)=>({id:'f'+uid+'_'+i, ts, meal, ...x}));
+  D.lastMeal = meal;
+  const n = basket.length; basket = []; renderBasket();
+  close_('shFood'); toast(`${n} ingredient${n>1?'s desats':' desat'} a ${meal.toLowerCase()}`);
+  for(const it of items){ await pushEntry('foods', it); }
+}
+
+/* ---------------- son ---------------- */
+function openSleep(){
+  const n = new Date();
+  document.getElementById('slDate').value = `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;
+  open_('shSleep');
+}
+async function saveSleep(){
+  const v = id => document.getElementById(id).value.trim();
+  const N = id => v(id)===''?null:parseFloat(v(id));
+  let tot = N('slTot');
+  if(!tot && v('slIn') && v('slOut')){
+    const [a,b]=v('slIn').split(':').map(Number), [c,d]=v('slOut').split(':').map(Number);
+    tot = ((c*60+d) - (a*60+b) + 1440) % 1440;
+  }
+  if(!tot){ toast('Posa-hi el temps de son o les hores.'); return; }
+  const dv = document.getElementById('slDate').value;
+  const [Y,M,Dd] = dv ? dv.split('-').map(Number) : [];
+  const ts = Y ? new Date(Y, M-1, Dd, 8, 0, 0, 0).getTime() : Date.now();
+  const o = {id:'s'+Date.now(), ts, inH:v('slIn'), outH:v('slOut'), tot:Math.round(tot),
+    real:N('slReal'), score:N('slScore'), cont:N('slCont'), light:N('slLight'), deep:N('slDeep'),
+    rem:N('slRem'), intr:N('slInt'), hrv:N('slHrv'), rhr:N('slRhr'), br:N('slBr'),
+    rech:v('slRech'), notes:v('slNotes')};
+  ['slIn','slOut','slTot','slReal','slScore','slCont','slLight','slDeep','slRem','slInt',
+   'slHrv','slRhr','slBr','slRech','slNotes'].forEach(i=>document.getElementById(i).value='');
+  close_('shSleep'); toast('Nit desada');
+  await pushEntry('sleep', o);
+}
+
+/* ---------------- els meus ingredients ---------------- */
+function openMine(){
+  const ks = Object.keys(D.custom);
+  document.getElementById('mineList').innerHTML = ks.length
+    ? ks.map(n=>{const m=D.custom[n];
+        return `<div class="ing"><b>${n}</b><small>${m[0]} kcal · ${m[1]}P</small>
+          <button class="rm" style="color:var(--rust);font-size:19px;background:none;padding:0 4px"
+            onclick="delIng(${JSON.stringify(n).replace(/"/g,'&quot;')})">×</button></div>`;}).join('')
+    : '<div class="empty">Encara no has creat cap ingredient propi.</div>';
+  open_('shMine');
+}
+async function delIng(n){
+  delete D.custom[n];
+  D.recents = D.recents.filter(x=>x!==n);
+  await save(); openMine(); renderIng(); toast('Ingredient esborrat');
+}
+
+/* ---------------- ingredient nou ---------------- */
+function openNew(){ open_('shNew'); }
+async function saveNewIng(){
+  const n = document.getElementById('nName').value.trim();
+  if(!n){ toast('Posa-hi un nom.'); return; }
+  const num = id => parseFloat(document.getElementById(id).value)||0;
+  D.custom[n] = [num('nK'),num('nP'),num('nC'),num('nF'),[50,100,150,200],'meus'];
+  await save();
+  ['nName','nK','nP','nC','nF'].forEach(i=>document.getElementById(i).value='');
+  close_('shNew'); renderIng(); toast('Ingredient afegit a la teva llista');
+}
+
+/* ---------------- detall / esborrar ---------------- */
+function openDet(k,id){
+  const src = k==='t'?D.trainings : k==='s'?D.sleep : D.foods;
+  const e = src.find(x=>x.id===id);
+  if(!e) return;
+  detail = {k,id};
+  const d = new Date(e.ts);
+  document.getElementById('detTitle').textContent = k==='t' ? e.sport : k==='s' ? 'Nit de son' : e.name;
+  let h = `<p class="hint" style="margin:0 0 4px">${dstr(d)} · ${hstr(d)}</p>`;
+  if(k==='t'){
+    const rows = [['Esport',e.sport],['Distància',e.km?e.km+' km':'—'],['Temps',e.min?e.min+' min':'—'],
+                  ['FC mitjana',e.fc?e.fc+' ppm':'—'],['FC màxima',e.fcMax?e.fcMax+' ppm':'—'],
+                  ['Fitxer FIT',e.fit||'—'],['Notes',e.notes||'—']];
+    h += rows.map(r=>`<div class="bk"><b>${r[0]}</b><small>${r[1]}</small></div>`).join('');
+    document.getElementById('detEdit').innerHTML='';
+  }else if(k==='s'){
+    const rows = [['A dormir',e.inH||'—'],['Llevat',e.outH||'—'],['Temps de son',hm(e.tot)],
+      ['Son real',e.real?hm(e.real):'—'],['Puntuació',e.score?e.score+'/100':'—'],
+      ['Continuïtat',e.cont??'—'],['Lleuger',e.light?hm(e.light):'—'],['Profund',e.deep?hm(e.deep):'—'],
+      ['REM',e.rem?hm(e.rem):'—'],['Interrupcions',e.intr?e.intr+' min':'—'],
+      ['VFC',e.hrv?e.hrv+' ms':'—'],['FC en repòs',e.rhr?e.rhr+' ppm':'—'],
+      ['Respiració',e.br?e.br+' rpm':'—'],['Recharge',e.rech||'—'],['Notes',e.notes||'—']];
+    h += rows.map(r=>`<div class="bk"><b>${r[0]}</b><small>${r[1]}</small></div>`).join('');
+    document.getElementById('detEdit').innerHTML='';
+  }else{
+    const rows = [['Àpat',e.meal],['Quantitat',e.grams+' g'],['Energia',Math.round(e.kcal)+' kcal'],
+                  ['Proteïna',e.p.toFixed(1)+' g'],['Hidrats',e.c.toFixed(1)+' g'],['Greix',e.f.toFixed(1)+' g']];
+    h += rows.map(r=>`<div class="bk"><b>${r[0]}</b><small>${r[1]}</small></div>`).join('');
+    document.getElementById('detEdit').innerHTML =
+      `<label>Canvia la quantitat (g)</label>
+       <input type="number" inputmode="decimal" id="edG" value="${e.grams}">
+       <button class="save amb" onclick="editGrams()">Desa el canvi</button>`;
+  }
+  document.getElementById('detBody').innerHTML = `<div class="basket">${h}</div>`;
+  open_('shDet');
+}
+async function editGrams(){
+  const g = parseFloat(document.getElementById('edG').value);
+  if(!g || g<=0){ toast('Posa-hi una quantitat.'); return; }
+  const e = D.foods.find(x=>x.id===detail.id);
+  const m = allIng()[e.name];
+  if(m){ const r=g/100; Object.assign(e,{grams:g,kcal:m[0]*r,p:m[1]*r,c:m[2]*r,f:m[3]*r}); }
+  else { const r=g/e.grams; Object.assign(e,{grams:g,kcal:e.kcal*r,p:e.p*r,c:e.c*r,f:e.f*r}); }
+  saveLocal(); close_('shDet'); render(); toast('Quantitat actualitzada');
+  try{ await deleteRow(e.id); await pushRow('foods', e); setSync(true); }
+  catch(err){ setSync(false); toast('Actualitzat en local; se sincronitzarà en reconnectar.'); }
+}
+async function delEntry(){
+  const tbl = detail.k==='t' ? 'trainings' : detail.k==='s' ? 'sleep' : 'foods';
+  close_('shDet');
+  await removeEntry(tbl, detail.id);
+  toast('Registre esborrat');
+}
+
+/* ---------------- exportació ---------------- */
+function csvCell(v){
+  const s = (v===null||v===undefined) ? '' : String(v);
+  return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+function buildCSV(){
+  const head = ['tipus','data','hora','esport_o_apat','detall','quantitat_g','km','minuts',
+                'fc_mitjana','fc_max','kcal','proteina_g','hidrats_g','greix_g','ref_fit','notes',
+                'son_total_min','son_real_min','puntuacio','continuitat','lleuger_min','profund_min',
+                'rem_min','interrupcions_min','vfc_ms','fc_repos','resp_rpm','recharge'];
+  const E = n => new Array(n).fill('');
+  const rows = [...D.trainings.map(t=>({...t,k:'t'})), ...D.foods.map(f=>({...f,k:'f'})),
+                ...D.sleep.map(z=>({...z,k:'s'}))]
+    .sort((a,b)=>a.ts-b.ts)
+    .map(e=>{
+      const d = new Date(e.ts);
+      if(e.k==='t') return ['entrenament',dstr(d),hstr(d),e.sport,'','',e.km??'',e.min??'',e.fc??'',e.fcMax??'','','','','',e.fit||'',e.notes||'',...E(12)];
+      if(e.k==='s') return ['son',dstr(d),e.inH||'',  'Son',e.outH||'',...E(10),e.notes||'',
+                            e.tot??'',e.real??'',e.score??'',e.cont??'',e.light??'',e.deep??'',
+                            e.rem??'',e.intr??'',e.hrv??'',e.rhr??'',e.br??'',e.rech||''];
+      return ['menjar',dstr(d),hstr(d),e.meal,e.name,e.grams,'','','','',
+              Math.round(e.kcal),e.p.toFixed(1),e.c.toFixed(1),e.f.toFixed(1),'','',...E(12)];
+    });
+  return [head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
+}
+/* ---------------- importació ---------------- */
+function splitCSVLine(l){
+  const out=[]; let cur='', q=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(q){ if(c==='"'){ if(l[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"') q=true; else if(c===',') {out.push(cur);cur='';} else cur+=c; }
+  }
+  out.push(cur); return out;
+}
+async function backupJSON(){
+  const j = JSON.stringify({v:2, trainings:D.trainings, foods:D.foods, sleep:D.sleep,
+                            custom:D.custom, recents:D.recents});
+  try{ await navigator.clipboard.writeText(j); toast('Còpia completa copiada'); }
+  catch(e){ document.getElementById('impBox').value = j;
+            toast('Copia el text del quadre de sota i guarda\'l'); }
+}
+function downloadJSON(){
+  const j = JSON.stringify({v:2, trainings:D.trainings, foods:D.foods, sleep:D.sleep,
+                            custom:D.custom, recents:D.recents});
+  saveBlob(j, 'json', 'application/json');
+}
+function loadFile(ev){
+  const f = ev.target.files && ev.target.files[0];
+  if(!f){ return; }
+  const r = new FileReader();
+  r.onload = e => { importText(String(e.target.result||'')); ev.target.value=''; };
+  r.onerror = () => toast('No s\'ha pogut llegir el fitxer.');
+  r.readAsText(f);
+}
+async function importCSV(){
+  await importText(document.getElementById('impBox').value);
+}
+async function importText(raw0){
+  const raw = (raw0||'').trim().replace(/^\uFEFF/,'');
+  if(!raw){ toast('No hi ha res per importar.'); return; }
+  if(raw.startsWith('{')){
+    try{
+      const j = JSON.parse(raw);
+      const key = x => x.ts+'|'+(x.name||x.sport||'son')+'|'+(x.grams||x.min||x.tot||'');
+      const added = [];
+      const merge = (tbl,src) => { const seen = new Set(D[tbl].map(key));
+        (src||[]).forEach(x=>{ if(!seen.has(key(x))){ D[tbl].push(x); added.push([tbl,x]); seen.add(key(x)); } }); };
+      merge('trainings', j.trainings); merge('foods', j.foods); merge('sleep', j.sleep);
+      D.custom = Object.assign({}, j.custom||{}, D.custom);
+      saveLocal(); document.getElementById('impBox').value='';
+      close_('shExp'); render(); toast(`Pujant ${added.length} registres al núvol…`);
+      let ok=0; for(const [tbl,o] of added){ try{ await pushRow(tbl,o); ok++; }catch(e){} }
+      setSync(ok===added.length); render();
+      toast(added.length? `${ok}/${added.length} registres sincronitzats` : 'Res de nou per importar');
+    }catch(e){ toast('El JSON no és vàlid.'); }
+    return;
+  }
+  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length < 2){ toast('El CSV no té files.'); return; }
+  let addT=0, addF=0, addS=0, skip=0;
+  const added=[];
+  for(let i=1;i<lines.length;i++){
+    const c = splitCSVLine(lines[i]);
+    if(c.length < 14) continue;
+    const [tipus,data,hora,cc,det,gr,km,min,fc,fcM,kc,pr,hi,gx,fit,notes,
+           sTot,sReal,sSc,sCont,sLi,sDe,sRe,sIn,sHrv,sRhr,sBr,sRech] = c;
+    const [dd,mm,yy] = (data||'').split('/').map(Number);
+    const [hh,mi]    = (hora||'').split(':').map(Number);
+    if(!yy || isNaN(hh)) continue;
+    const ts = new Date(yy, mm-1, dd, hh, mi, 0, 0).getTime();
+    if(tipus === 'entrenament'){
+      if(D.trainings.some(t=>t.ts===ts && t.sport===cc)){ skip++; continue; }
+      const o={id:'t'+ts+'_'+i, ts, sport:cc, km:num(km), min:num(min),
+        fc:num(fc), fcMax:num(fcM), fit:fit||'', notes:notes||''};
+      D.trainings.push(o); added.push(['trainings',o]); addT++;
+    } else if(tipus === 'menjar'){
+      if(D.foods.some(f=>f.ts===ts && f.name===det && f.grams===num(gr))){ skip++; continue; }
+      const o={id:'f'+ts+'_'+i, ts, meal:cc, name:det, grams:num(gr)||0,
+        kcal:num(kc)||0, p:num(pr)||0, c:num(hi)||0, f:num(gx)||0};
+      D.foods.push(o); added.push(['foods',o]); addF++;
+    } else if(tipus === 'son'){
+      if(D.sleep.some(z=>z.ts===ts)){ skip++; continue; }
+      const o={id:'s'+ts+'_'+i, ts, inH:hora||'', outH:det||'', tot:num(sTot)||0,
+        real:num(sReal), score:num(sSc), cont:num(sCont), light:num(sLi), deep:num(sDe),
+        rem:num(sRe), intr:num(sIn), hrv:num(sHrv), rhr:num(sRhr), br:num(sBr),
+        rech:sRech||'', notes:notes||''};
+      D.sleep.push(o); added.push(['sleep',o]); addS++;
+    }
+  }
+  if(!addT && !addF && !addS){ toast(skip?'Tot això ja hi era.':'No s\'ha reconegut cap fila.'); return; }
+  saveLocal();
+  document.getElementById('impBox').value='';
+  close_('shExp'); render();
+  toast(`Pujant ${added.length} registres al núvol…`);
+  let ok=0; for(const [tbl,o] of added){ try{ await pushRow(tbl,o); ok++; }catch(e){} }
+  setSync(ok===added.length); render();
+  toast(`Importats i sincronitzats ${ok}/${added.length}`);
+}
+
+function download(){
+  if(!D.trainings.length && !D.foods.length){ toast('Encara no hi ha res per exportar.'); return; }
+  document.getElementById('csvBox').value = buildCSV();
+  document.getElementById('copyBtn').textContent = 'Copia-ho tot';
+  open_('shExp');
+}
+async function copyCSV(){
+  const box = document.getElementById('csvBox'), btn = document.getElementById('copyBtn');
+  let ok = false;
+  try{ await navigator.clipboard.writeText(box.value); ok = true; }
+  catch(e){
+    try{ box.removeAttribute('readonly'); box.focus(); box.select();
+         box.setSelectionRange(0, box.value.length);
+         ok = document.execCommand('copy'); box.setAttribute('readonly','');
+    }catch(e2){ ok = false; }
+  }
+  if(ok){ btn.textContent = 'Copiat'; toast('Taula copiada al porta-retalls');
+          setTimeout(()=>btn.textContent='Copia-ho tot',2500); }
+  else  { box.focus(); box.select(); toast('Selecciona-ho tot i copia-ho a mà'); }
+}
+function tryDownload(){
+  saveBlob('\uFEFF'+buildCSV(), 'csv', 'text/csv;charset=utf-8');
+}
+function saveBlob(text, ext, mime){
+  try{
+    const d = new Date();
+    const fn = `registre_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.${ext}`;
+    const url = URL.createObjectURL(new Blob([text],{type:mime}));
+    const a = document.createElement('a'); a.href=url; a.download=fn;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast('Si no apareix res, fes servir el botó de copiar');
+  }catch(e){ toast("El navegador ha bloquejat la descàrrega. Copia-ho."); }
+}
+
+load();
+</script>
