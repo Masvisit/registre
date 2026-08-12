@@ -686,21 +686,33 @@ function loadLocal(){
 }
 
 // converteix una fila del full en un objecte intern
+// reconstrueix la marca de temps: primer del camp ts, i si falla, de data+hora
+function parseTs(r){
+  const n = Number(r.ts);
+  if(Number.isFinite(n) && n > 1e12) return n;
+  const p2 = x => String(x||0).padStart(2,'0');
+  const [dd,mm,yy] = String(r.data||'').split('/').map(Number);
+  const [hh,mi]    = String(r.hora||'').split(':').map(Number);
+  if(yy && mm && dd) return new Date(yy, mm-1, dd, hh||0, mi||0, 0, 0).getTime();
+  return Date.now();
+}
 function rowToEntry(r){
-  const t = r.tipus;
-  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts:+r.ts, sport:r.esport_o_apat,
+  const t = r.tipus, ts = parseTs(r);
+  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts, sport:r.esport_o_apat,
     km:num(r.km), min:num(r.minuts), fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:r.ref_fit||'', notes:r.notes||''}};
-  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts:+r.ts, inH:r.hora||'', outH:r.detall||'',
+  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts, inH:r.hora||'', outH:r.detall||'',
     tot:num(r.son_total_min)||0, real:num(r.son_real_min), score:num(r.puntuacio), cont:num(r.continuitat),
     light:num(r.lleuger_min), deep:num(r.profund_min), rem:num(r.rem_min), intr:num(r.interrupcions_min),
     hrv:num(r.vfc_ms), rhr:num(r.fc_repos), br:num(r.resp_rpm), rech:r.recharge||'', notes:r.notes||''}};
-  return {tbl:'foods', o:{id:r.id, ts:+r.ts, meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
+  return {tbl:'foods', o:{id:r.id, ts, meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
     kcal:num(r.kcal)||0, p:num(r.proteina_g)||0, c:num(r.hidrats_g)||0, f:num(r.greix_g)||0}};
 }
-// converteix un objecte intern en una fila del full
 function entryToRow(tbl, o){
   const d = new Date(o.ts);
-  const base = {id:o.id, usuari:USER, ts:o.ts, data:dstr(d), hora:hstr(d)};
+  const p2 = n => String(n).padStart(2,'0');
+  const dd = `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+  const hh = `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+  const base = {id:o.id, usuari:USER, ts:o.ts, data:dd, hora:hh};
   if(tbl === 'trainings') return {...base, tipus:'entrenament', esport_o_apat:o.sport,
     km:o.km??'', minuts:o.min??'', fc_mitjana:o.fc??'', fc_max:o.fcMax??'', ref_fit:o.fit||'', notes:o.notes||''};
   if(tbl === 'sleep') return {...base, tipus:'son', esport_o_apat:'Son', detall:o.outH||'', notes:o.notes||'',
