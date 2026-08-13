@@ -726,10 +726,10 @@ function loadLocal(){
 
 // construeix un ts intern a partir de data (DD/MM/YYYY) i hora (HH:MM) — mai va al full
 function tsFromStrings(dataStr, horaStr){
-  if(!dataStr) return Date.now();
+  if(!dataStr) return 0;                              // sense data → ts estable, no l'hora actual
   const [dd,mm,yy] = dataStr.split('/').map(Number);
   const [hh,mi]    = (horaStr||'00:00').split(':').map(Number);
-  if(!yy || !mm || !dd) return Date.now();
+  if(!yy || !mm || !dd) return 0;
   return new Date(yy, mm-1, dd, hh||0, mi||0, 0, 0).getTime();
 }
 
@@ -923,9 +923,10 @@ function render(){
 
   document.getElementById('log').innerHTML = list.length ? list.map(e=>{
     const d = new Date(e.ts);
-    const dataShow = e.dataStr || dstr(d);
-    const horaShow = e.horaStr || hstr(d);
-    const when = (showAll && !isToday(e.ts) ? dataShow+' · ' : '') + horaShow;
+    const dataShow = e.dataStr || '';
+    const horaShow = e.horaStr || '';
+    const quan = (dataShow||horaShow) ? ((showAll && !isToday(e.ts) ? dataShow+' · ' : '') + horaShow) : 'sense data';
+    const when = quan;
     if(e.k==='t'){
       const bits=[e.km?e.km+' km':null, e.min?e.min+' min':null, e.fc?e.fc+' ppm':null].filter(Boolean);
       return `<button class="row" onclick="openDet('t','${e.id}')">
@@ -1136,10 +1137,10 @@ function openDet(k,id){
   if(!e) return;
   detail = {k,id};
   const d = new Date(e.ts);
-  const dataShow = e.dataStr || dstr(d);
-  const horaShow = e.horaStr || hstr(d);
+  const dataShow = e.dataStr || '';
+  const horaShow = e.horaStr || '';
   document.getElementById('detTitle').textContent = k==='t' ? e.sport : k==='s' ? 'Nit de son' : e.name;
-  let h = `<p class="hint" style="margin:0 0 4px">${dataShow} · ${horaShow}</p>`;
+  let h = `<p class="hint" style="margin:0 0 4px">${(dataShow||horaShow) ? dataShow+' · '+horaShow : 'sense data'}</p>`;
   if(k==='t'){
     const rows = [['Esport',e.sport],['Distància',e.km?e.km+' km':'—'],['Temps',e.min?e.min+' min':'—'],
                   ['FC mitjana',e.fc?e.fc+' ppm':'—'],['FC màxima',e.fcMax?e.fcMax+' ppm':'—'],
@@ -1170,11 +1171,14 @@ function openDet(k,id){
 // editor de data i hora (ISO per als inputs natius) compartit per tots els tipus
 function dateEditor(dataShow, horaShow){
   const [dd,mm,yy] = (dataShow||'').split('/');
-  const iso = (yy&&mm&&dd) ? `${yy}-${mm}-${dd}` : '';
+  const now = new Date();
+  const p2 = n => String(n).padStart(2,'0');
+  const iso = (yy&&mm&&dd) ? `${yy}-${mm}-${dd}` : `${now.getFullYear()}-${p2(now.getMonth()+1)}-${p2(now.getDate())}`;
+  const hora = horaShow || `${p2(now.getHours())}:${p2(now.getMinutes())}`;
   return `<label>Data i hora del registre</label>
     <div class="grid2">
       <input type="date" id="edDate" value="${iso}">
-      <input type="time" id="edTime" value="${horaShow||''}">
+      <input type="time" id="edTime" value="${hora}">
     </div>
     <button class="save amb" onclick="saveEdit()">Desa els canvis</button>`;
 }
