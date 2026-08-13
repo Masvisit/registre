@@ -666,14 +666,15 @@ const CATS = {meus:"Els meus",carn:"Carn",peix:"Peix",lactic:"Ous i làctics",ll
 const MEALS  = ["Esmorzar","Mig matí","Dinar","Berenar","Sopar","Post-assaig"];
 const GOALS  = {kcal:3000,p:185,c:340,f:95};
 const KEY    = 'registre:v1';
-const API    = 'https://script.google.com/macros/s/AKfycbxPw5Ud9Ek3hZJZt2ySPHWI8S1W2G1QGcmn1InG-2SehJuqZxjkBIf0pkr2-C-rOg1Z/exec';
+const API    = 'https://script.google.com/macros/s/AKfycby7_hamHpA32_SY39sTtQ0VpWqcfk-lnVJHPssL9OGDRLxN_fkAy3SSD2zbDD7FLgWD/exec';
 const USER   = 'alex';   // el teu perfil; els companys tindran el seu
 
 let D = {trainings:[],foods:[],sleep:[],custom:{},recents:[]};
 let sport = SPORTS[0], meal = MEALS[0], basket = [], pending = null, detail = null, showAll = false, cat = '';
 
 /* ---------------- emmagatzematge: Google Sheets + memòria cau local ---------------- */
-const num = v => (v==='' || v===null || v===undefined) ? null : (isNaN(parseFloat(v)) ? null : parseFloat(v));
+const clean = v => String(v==null?'':v).replace(/^'/,'').trim();
+const num = v => { const s = clean(v); return s==='' ? null : (isNaN(parseFloat(s)) ? null : parseFloat(s)); };
 let online = false;
 
 function saveLocal(){
@@ -695,21 +696,21 @@ function tsFromStrings(dataStr, horaStr){
 
 // llegeix una fila del full → objecte intern (data i hora venen com a text pur)
 function rowToEntry(r){
-  const t    = r.tipus;
-  const data = String(r.data||'').trim();
-  const hora = String(r.hora||'').trim();
+  const t    = clean(r.tipus);
+  const data = clean(r.data);
+  const hora = clean(r.hora);
   const ts   = tsFromStrings(data, hora);
-  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts, dataStr:data, horaStr:hora,
-    sport:r.esport_o_apat, km:num(r.km), min:num(r.minuts),
-    fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:r.ref_fit||'', notes:r.notes||''}};
-  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts, dataStr:data, horaStr:hora,
-    inH:hora, outH:r.detall||'',
+  if(t === 'entrenament') return {tbl:'trainings', o:{id:clean(r.id), ts, dataStr:data, horaStr:hora,
+    sport:clean(r.esport_o_apat), km:num(r.km), min:num(r.minuts),
+    fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:clean(r.ref_fit), notes:clean(r.notes)}};
+  if(t === 'son') return {tbl:'sleep', o:{id:clean(r.id), ts, dataStr:data, horaStr:hora,
+    inH:hora, outH:clean(r.detall),
     tot:num(r.son_total_min)||0, real:num(r.son_real_min), score:num(r.puntuacio),
     cont:num(r.continuitat), light:num(r.lleuger_min), deep:num(r.profund_min),
     rem:num(r.rem_min), intr:num(r.interrupcions_min),
-    hrv:num(r.vfc_ms), rhr:num(r.fc_repos), br:num(r.resp_rpm), rech:r.recharge||'', notes:r.notes||''}};
-  return {tbl:'foods', o:{id:r.id, ts, dataStr:data, horaStr:hora,
-    meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
+    hrv:num(r.vfc_ms), rhr:num(r.fc_repos), br:num(r.resp_rpm), rech:clean(r.recharge), notes:clean(r.notes)}};
+  return {tbl:'foods', o:{id:clean(r.id), ts, dataStr:data, horaStr:hora,
+    meal:clean(r.esport_o_apat), name:clean(r.detall), grams:num(r.quantitat_g)||0,
     kcal:num(r.kcal)||0, p:num(r.proteina_g)||0, c:num(r.hidrats_g)||0, f:num(r.greix_g)||0}};
 }
 
