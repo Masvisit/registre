@@ -698,13 +698,16 @@ function parseTs(r){
 }
 function rowToEntry(r){
   const t = r.tipus, ts = parseTs(r);
-  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts, sport:r.esport_o_apat,
+  // preservem data i hora exactes tal com estan al full, sense recalcular
+  const dataStr = r.data || '';
+  const horaStr = r.hora || '';
+  if(t === 'entrenament') return {tbl:'trainings', o:{id:r.id, ts, dataStr, horaStr, sport:r.esport_o_apat,
     km:num(r.km), min:num(r.minuts), fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:r.ref_fit||'', notes:r.notes||''}};
-  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts, inH:r.hora||'', outH:r.detall||'',
+  if(t === 'son') return {tbl:'sleep', o:{id:r.id, ts, dataStr, horaStr, inH:r.hora||'', outH:r.detall||'',
     tot:num(r.son_total_min)||0, real:num(r.son_real_min), score:num(r.puntuacio), cont:num(r.continuitat),
     light:num(r.lleuger_min), deep:num(r.profund_min), rem:num(r.rem_min), intr:num(r.interrupcions_min),
     hrv:num(r.vfc_ms), rhr:num(r.fc_repos), br:num(r.resp_rpm), rech:r.recharge||'', notes:r.notes||''}};
-  return {tbl:'foods', o:{id:r.id, ts, meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
+  return {tbl:'foods', o:{id:r.id, ts, dataStr, horaStr, meal:r.esport_o_apat, name:r.detall, grams:num(r.quantitat_g)||0,
     kcal:num(r.kcal)||0, p:num(r.proteina_g)||0, c:num(r.hidrats_g)||0, f:num(r.greix_g)||0}};
 }
 function entryToRow(tbl, o){
@@ -799,6 +802,13 @@ const hm = m => m ? `${Math.floor(m/60)}h${pad(m%60)}` : '—';
 function allIng(){ return Object.assign({}, DB, D.custom); }
 // desa una entrada nova: a la taula local, en cau, i al núvol
 async function pushEntry(tbl, o){
+  // assegurem que l'objecte té dataStr i horaStr fixes des del primer moment
+  if(!o.dataStr || !o.horaStr){
+    const d = new Date(o.ts);
+    const p2 = n => String(n).padStart(2,'0');
+    o.dataStr = `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+    o.horaStr = `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+  }
   D[tbl].push(o);
   saveLocal(); render();
   writing++; setSync('busy');
@@ -872,7 +882,9 @@ function render(){
 
   document.getElementById('log').innerHTML = list.length ? list.map(e=>{
     const d = new Date(e.ts);
-    const when = (showAll && !isToday(e.ts) ? dstr(d)+' · ' : '') + hstr(d);
+    const dataShow = e.dataStr || dstr(d);
+    const horaShow = e.horaStr || hstr(d);
+    const when = (showAll && !isToday(e.ts) ? dataShow+' · ' : '') + horaShow;
     if(e.k==='t'){
       const bits=[e.km?e.km+' km':null, e.min?e.min+' min':null, e.fc?e.fc+' ppm':null].filter(Boolean);
       return `<button class="row" onclick="openDet('t','${e.id}')">
