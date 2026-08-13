@@ -802,12 +802,10 @@ const hm = m => m ? `${Math.floor(m/60)}h${pad(m%60)}` : '—';
 function allIng(){ return Object.assign({}, DB, D.custom); }
 // desa una entrada nova: a la taula local, en cau, i al núvol
 async function pushEntry(tbl, o){
-  // assegurem que l'objecte té dataStr i horaStr fixes des del primer moment
-  if(!o.dataStr || !o.horaStr){
+  // dataStr i horaStr ja vénen fixats des del formulari — no recalcular mai
+  if(!o.dataStr){
     const d = new Date(o.ts);
-    const p2 = n => String(n).padStart(2,'0');
-    o.dataStr = `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
-    o.horaStr = `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+    o.dataStr = dstr(d); o.horaStr = hstr(d);
   }
   D[tbl].push(o);
   saveLocal(); render();
@@ -925,7 +923,11 @@ async function saveTrain(){
   const v = id => document.getElementById(id).value.trim();
   const min = v('tMin'), km = v('tKm');
   if(!min && !km){ toast('Posa-hi almenys el temps o la distància.'); return; }
-  const o = {id:'t'+Date.now(), ts:readTs('tDate','tTime'), sport,
+  const dateVal = v('tDate'), timeVal = v('tTime');
+  const [yy,mm,dd] = dateVal.split('-');
+  const dataStr = `${dd}/${mm}/${yy}`;
+  const horaStr = timeVal || '00:00';
+  const o = {id:'t'+Date.now(), ts:readTs('tDate','tTime'), sport, dataStr, horaStr,
     km:km?parseFloat(km):null, min:min?parseInt(min):null,
     fc:v('tFc')?parseInt(v('tFc')):null, fcMax:v('tFcMax')?parseInt(v('tFcMax')):null,
     fit:v('tFit'), notes:v('tNotes')};
@@ -1012,7 +1014,12 @@ function rmBasket(i){ basket.splice(i,1); renderBasket(); }
 
 async function saveFood(){
   const ts = readTs('fDate','fTime'), uid = Date.now();
-  const items = basket.map((x,i)=>({id:'f'+uid+'_'+i, ts, meal, ...x}));
+  const dateVal = document.getElementById('fDate').value;
+  const timeVal = document.getElementById('fTime').value || '00:00';
+  const [yy,mm,dd] = dateVal.split('-');
+  const dataStr = `${dd}/${mm}/${yy}`;
+  const horaStr = timeVal;
+  const items = basket.map((x,i)=>({id:'f'+uid+'_'+i, ts, dataStr, horaStr, meal, ...x}));
   D.lastMeal = meal;
   const n = basket.length; basket = []; renderBasket();
   close_('shFood'); toast(`${n} ingredient${n>1?'s desats':' desat'} a ${meal.toLowerCase()}`);
@@ -1037,7 +1044,10 @@ async function saveSleep(){
   const dv = document.getElementById('slDate').value;
   const [Y,M,Dd] = dv ? dv.split('-').map(Number) : [];
   const ts = Y ? new Date(Y, M-1, Dd, 8, 0, 0, 0).getTime() : Date.now();
-  const o = {id:'s'+Date.now(), ts, inH:v('slIn'), outH:v('slOut'), tot:Math.round(tot),
+  const [yy,mm,dd] = dv.split('-');
+  const dataStr = dd ? `${dd}/${mm}/${yy}` : dstr(new Date(ts));
+  const horaStr = v('slIn') || '00:00';
+  const o = {id:'s'+Date.now(), ts, dataStr, horaStr, inH:v('slIn'), outH:v('slOut'), tot:Math.round(tot),
     real:N('slReal'), score:N('slScore'), cont:N('slCont'), light:N('slLight'), deep:N('slDeep'),
     rem:N('slRem'), intr:N('slInt'), hrv:N('slHrv'), rhr:N('slRhr'), br:N('slBr'),
     rech:v('slRech'), notes:v('slNotes')};
