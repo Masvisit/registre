@@ -288,6 +288,41 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
 }
 @media (min-width:1400px){ .wrap{max-width:1300px} .hero-n{font-size:104px} }
 
+/* ============ TENDENCIES ============ */
+.balrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.balrow .bl{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);max-width:52%;line-height:1.5}
+.balrow .bn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:27px;line-height:1;
+  text-align:right;white-space:nowrap}
+.balrow .bn small{display:block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;
+  font-weight:500;color:var(--dim);margin-top:3px}
+.secttl{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--acid);margin:24px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.bal{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.bal .wl{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);width:78px;flex:none}
+.bal .bz{flex:1;height:15px;position:relative;background:var(--surf2)}
+.bal .bz i{position:absolute;top:0;bottom:0;display:block}
+.bal .bz s{position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--line);text-decoration:none}
+.bal .bv{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;width:72px;
+  text-align:right;flex:none;line-height:1}
+.stat2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:13px}
+.stat2>div{background:var(--bg);padding:13px}
+.stat2 b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:25px;line-height:1}
+.stat2 span{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);display:block;margin-bottom:6px}
+.stat2 em{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim);
+  display:block;margin-top:5px}
+.corr{padding:12px 0;border-bottom:1px solid var(--line);display:flex;align-items:baseline;
+  justify-content:space-between;gap:12px}
+.corr b{font-weight:500;font-size:15px;flex:1}
+.corr span{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--dim);
+  text-align:right;flex:none;white-space:nowrap}
+.corr span i{font-style:normal;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:19px;color:var(--ink);margin-right:6px}
+.scat{width:100%;height:auto;display:block;background:var(--surf);border:1px solid var(--line);margin-top:13px}
+
 /* ============ TECLAT PIN ============ */
 .pinrow{display:flex;gap:14px;justify-content:center;margin:14px 0 26px}
 .pinrow i{width:17px;height:17px;border:2px solid var(--line);border-radius:50%;display:block}
@@ -378,6 +413,7 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
       <span><s style="background:var(--flame)"></s>minuts</span>
       <span><s style="background:var(--ice)"></s>son</span>
     </div>
+    <div class="balrow" id="wkBal"></div>
   </div>
 
   </div>
@@ -387,7 +423,8 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
     <button class="act f" onclick="openFood()"><span class="ico">●</span><span class="tx"><b>Menjar</b><span>ingredients · grams</span></span></button>
     <button class="act s" onclick="openSleep()"><span class="ico">◗</span><span class="tx"><b>Son</b><span>hores · qualitat</span></span></button>
     <button class="act l" onclick="openLog()"><span class="ico">▤</span><span class="tx"><b>Registre</b><span id="logSub">veure-ho tot</span></span></button>
-    <button class="act d wide" onclick="openData()"><span class="ico">⇅</span><span class="tx"><b>Dades</b><span>exporta · importa · còpia</span></span></button>
+    <button class="act l" onclick="openStats()"><span class="ico">∿</span><span class="tx"><b>Tendències</b><span>balanç · son i càrrega</span></span></button>
+    <button class="act d" onclick="openData()"><span class="ico">⇅</span><span class="tx"><b>Dades</b><span>exporta · importa · còpia</span></span></button>
   </div>
   </div>
   </div>
@@ -525,15 +562,29 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
 </div>
 </div>
 
+<!-- ============================ TENDÈNCIES ============================ -->
+<div class="sheet" id="shStats">
+<div class="dlg">
+  <div class="sh-top"><button class="x" onclick="close_('shStats')">×</button><h2>Tendències</h2></div>
+  <div class="wrap">
+    <div class="srch" style="padding-top:12px"><div class="chips" id="stChips"></div></div>
+    <div id="statsBody"></div>
+  </div>
+</div>
+</div>
+
 <!-- ============================ DADES ============================ -->
 <div class="sheet" id="shData">
 <div class="dlg">
   <div class="sh-top"><button class="x" onclick="close_('shData')">×</button><h2>Dades</h2></div>
   <div class="wrap">
-    <label>Exporta</label>
+    <label>Què vols exportar</label>
+    <div class="chips" id="expChips"></div>
+    <label>De quin període</label>
+    <div class="chips" id="expDiesChips"></div>
+    <p class="hint" id="expHint"></p>
     <button class="go" onclick="copyCSV()" id="copyBtn">Copia la taula (CSV)</button>
-    <button class="gh" onclick="downloadJSON()">Descarrega còpia completa (.json)</button>
-    <p class="hint">El JSON inclou tot: entrenaments, menjar, son i els teus ingredients.</p>
+    <button class="gh" onclick="downloadJSON()">Descarrega (.json)</button>
     <label>Importa</label>
     <button class="go s" onclick="document.getElementById('impFile').click()">Puja un fitxer</button>
     <p class="hint">CSV o JSON exportat abans. Les files repetides s'ignoren.</p>
@@ -864,6 +915,8 @@ let USER = null, CFG = null;
 let D = {trainings:[],foods:[],sleep:[],custom:{},recents:[]};
 let sport = SPORTS[0], meal = MEALS[0], basket = [], pending = null, detail = null;
 let cat = '', logAll = false, navDay = new Date();
+let expSel = {t:true, f:true, s:true}, expDies = 0, stDies = 30;
+let cua = [], flushing = false;
 let online = false, writing = 0, tmr = null, timer = null;
 
 /* ==================== UTILITATS ==================== */
@@ -1011,7 +1064,7 @@ function entra(clau, nom, perfil, files){
   document.getElementById('scLogin').classList.remove('on');
   document.getElementById('scHome').classList.add('on');
   D = {trainings:[],foods:[],sleep:[],custom:{},recents:[]};
-  loadLocal();
+  loadLocal(); loadCua();
   if(files && files.length) aplicaFiles(files);
   render(); arrenca();
 }
@@ -1057,23 +1110,45 @@ function entryToRow(tbl,o){
   return {...base, tipus:'menjar', esport_o_apat:o.meal, detall:o.name, quantitat_g:o.grams,
     kcal:Math.round(o.kcal), proteina_g:(+o.p).toFixed(1), hidrats_g:(+o.c).toFixed(1), greix_g:(+o.f).toFixed(1)};
 }
-/* ids escrits en local que encara no han estat confirmats pel núvol */
-const pendents = new Set();
+/* ---- cua d'escriptures pendents: sobreviu a tancar l'app ---- */
+const QKEY = () => 'reg:cua:'+USER;
+function saveCua(){ try{ localStorage.setItem(QKEY(), JSON.stringify(cua)); }catch(e){} pintaCua(); }
+function loadCua(){ try{ cua = JSON.parse(localStorage.getItem(QKEY())||'[]')||[]; }catch(e){ cua=[]; } pintaCua(); }
+function encua(job){ cua.push(job); saveCua(); }
+/* ids que encara no han pujat, i ids esborrats que encara no s'han esborrat al núvol */
+function idsPujar(){ const s=new Set(); cua.forEach(j=>{ if(j.op==='push'&&j.o&&j.o.id) s.add(j.o.id); }); return s; }
+function idsEsborrar(){ const s=new Set(); cua.forEach(j=>{ if(j.op==='del') s.add(j.id); }); return s; }
+async function flushCua(){
+  if(flushing || !cua.length || !USER) return true;
+  flushing = true; setSync('busy');
+  try{
+    while(cua.length){
+      const j = cua[0];
+      try{ if(j.op==='push') await push(j.tbl, j.o); else await del(j.id); }
+      catch(e){ setSync(false); return false; }
+      cua.shift(); saveCua();
+    }
+  } finally { flushing = false; }
+  setSync(true); return true;
+}
 function aplicaFiles(files){
-  const T=[],F=[],S=[];
+  const T=[],F=[],S=[], fora = idsEsborrar();
   files.forEach(x=>{
     if(clean(x.tipus)==='perfil'){
+      if(fora.has(clean(x.id))) return;
       CFG = Object.assign(CFG||{}, {nom:clean(x.detall)||CFG.nom, pes:num(x.quantitat_g)||CFG.pes,
         base:num(x.kcal)||CFG.base, prot:num(x.proteina_g)||CFG.prot,
         hidr:num(x.hidrats_g)||CFG.hidr, greix:num(x.greix_g)||CFG.greix, pid:clean(x.id)});
       return;
     }
+    if(fora.has(clean(x.id))) return;
     const e = rowToEntry(x);
     if(e.tbl==='trainings')T.push(e.o); else if(e.tbl==='sleep')S.push(e.o); else F.push(e.o);
   });
+  const pend = idsPujar();
   const guarda = (nous, locals) => {
     const ids = new Set(nous.map(x=>x.id));
-    (locals||[]).forEach(x=>{ if(pendents.has(x.id) && !ids.has(x.id)) nous.push(x); });
+    (locals||[]).forEach(x=>{ if(pend.has(x.id) && !ids.has(x.id)) nous.push(x); });
     return nous;
   };
   D.trainings = guarda(T, D.trainings);
@@ -1096,13 +1171,20 @@ async function del(id){
   const r = await fetch(`${API}?accio=esborrar&usuari=${encodeURIComponent(USER)}&id=${encodeURIComponent(id)}`);
   const j = await r.json(); if(!j.ok) throw new Error(j.error||'error');
 }
-function setSync(s){
+function pintaCua(){
   const el = document.getElementById('syncDot'); if(!el) return;
-  if(s==='busy'){ el.style.background='var(--flame)'; return; }
-  online = s; el.style.background = s ? 'var(--acid)' : 'var(--blood)';
+  if(cua.length){ el.style.background='var(--flame)';
+    el.title = cua.length+' canvi'+(cua.length>1?'s':'')+' per pujar'; return; }
+  el.style.background = online ? 'var(--acid)' : 'var(--blood)';
+  el.title = online ? 'Sincronitzat' : 'Sense connexió';
+}
+function setSync(s){
+  if(s==='busy'){ const el=document.getElementById('syncDot'); if(el) el.style.background='var(--flame)'; return; }
+  online = s; pintaCua();
 }
 async function refresh(busy){
-  if(writing>0) return;
+  if(writing>0 || flushing) return;
+  if(cua.length){ const ok = await flushCua(); if(!ok) return false; }
   if(busy) setSync('busy');
   for(let i=0;i<2;i++){
     try{ await pull(); setSync(true); render(); return true; }
@@ -1110,25 +1192,27 @@ async function refresh(busy){
   }
 }
 function arrenca(){
-  refresh(true);
+  loadCua(); refresh(true);
   if(timer) clearInterval(timer);
-  timer = setInterval(()=>{ if(!document.hidden && USER) refresh(false); }, 8000);
+  timer = setInterval(()=>{ if(!document.hidden && USER) refresh(false); }, 60000);
 }
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && USER) refresh(true); });
+window.addEventListener('online', ()=>{ if(USER) refresh(true); });
 
 async function add(tbl,o){
   if(!o.dataStr){ const d=new Date(o.ts||Date.now()); o.dataStr=dstr(d); o.horaStr=hstr(d); }
-  D[tbl].push(o); pendents.add(o.id); saveLocal(); render();
-  writing++; setSync('busy');
-  try{ await push(tbl,o); setSync(true); pendents.delete(o.id); }
-  catch(e){ setSync(false); toast('Desat en local; se sincronitzarà en reconnectar.'); }
+  D[tbl].push(o); saveLocal(); render();
+  encua({op:'push', tbl, o});
+  writing++;
+  try{ const ok = await flushCua(); if(!ok) toast('Desat en local; puja quan torni la connexió.'); }
   finally{ writing--; }
 }
 async function rm(tbl,id){
   D[tbl] = D[tbl].filter(x=>x.id!==id); saveLocal(); render();
-  writing++; setSync('busy');
-  try{ await del(id); setSync(true); }
-  catch(e){ setSync(false); toast('Esborrat en local.'); }
+  cua = cua.filter(j=>!(j.op==='push' && j.o && j.o.id===id));
+  encua({op:'del', id});
+  writing++;
+  try{ const ok = await flushCua(); if(!ok) toast('Esborrat en local; s\'aplicarà en reconnectar.'); }
   finally{ writing--; }
 }
 
@@ -1202,6 +1286,157 @@ function renderWeek(){
   const ms = ns.length ? Math.round(ns.reduce((s,x)=>s+x.son,0)/ns.length) : 0;
   document.getElementById('wkSum').textContent =
     `${Math.round(tk/7).toLocaleString('ca-ES')} kcal/dia · ${tm} min · ${ms?hm(ms):'—'} son`;
+
+  /* balanç: només compta els dies amb menjar registrat */
+  const amb = dat.filter(x=>x.kcal>0);
+  const bal = amb.reduce((s,x)=>s + (x.kcal - (CFG.base + x.burn)), 0);
+  document.getElementById('wkBal').innerHTML = amb.length
+    ? `<span class="bl">Balanç de ${amb.length} ${amb.length>1?'dies':'dia'} amb menjar registrat</span>
+       <span class="bn" style="color:var(--${bal>=0?'flame':'ice'})">${fmtS(bal)}<small>kcal · ${fmtKg(bal)}</small></span>`
+    : `<span class="bl">Balanç setmanal</span><span class="bn" style="font-size:15px;color:var(--dim)">registra menjar per veure'l</span>`;
+}
+
+/* ==================== TENDÈNCIES ==================== */
+const KCAL_KG = 7700;
+function fmtS(v){ const n=Math.round(v); return (n>0?'+':'') + n.toLocaleString('ca-ES'); }
+function fmtKg(v){ const k=v/KCAL_KG; return (k>0?'+':'') + k.toFixed(2).replace('.',',') + ' kg'; }
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0);
+  x.setDate(x.getDate() - ((x.getDay()+6)%7)); return x; }
+function primerDia(){
+  const ts=[...D.foods,...D.trainings,...D.sleep].map(x=>x.ts).filter(Boolean);
+  return ts.length ? Math.min(...ts) : Date.now();
+}
+function serie(n){
+  const out=[], avui=new Date();
+  for(let i=n-1;i>=0;i--){ const d=new Date(avui); d.setDate(d.getDate()-i); out.push({d, t:totsDia(d)}); }
+  return out;
+}
+function balDia(x){ return x.t.kcal>0 ? x.t.kcal - (CFG.base + x.t.burn) : null; }
+function mitjana(a){ return a.length ? a.reduce((s,x)=>s+x,0)/a.length : null; }
+function pearson(a,b){
+  const n=a.length; if(n<4) return null;
+  const ma=mitjana(a), mb=mitjana(b);
+  let nu=0,da=0,db=0;
+  for(let i=0;i<n;i++){ const x=a[i]-ma, y=b[i]-mb; nu+=x*y; da+=x*x; db+=y*y; }
+  if(!da||!db) return null;
+  return nu/Math.sqrt(da*db);
+}
+function forcaR(r){
+  const a=Math.abs(r);
+  if(a<0.2) return 'cap relació';
+  if(a<0.4) return r>0 ? 'lleu, hi puja' : 'lleu, hi baixa';
+  if(a<0.6) return r>0 ? 'moderada, hi puja' : 'moderada, hi baixa';
+  return r>0 ? 'forta, hi puja' : 'forta, hi baixa';
+}
+function parell(P, fx, fy){
+  const a=[], b=[];
+  P.forEach(x=>{ const u=fx(x), v=fy(x);
+    if(u!=null && v!=null && !isNaN(u) && !isNaN(v)){ a.push(+u); b.push(+v); } });
+  return [a,b];
+}
+function corrRow(label, P, fx, fy){
+  const [a,b]=parell(P,fx,fy);
+  let r=pearson(a,b); if(r!=null && Math.abs(r)<0.005) r=0;
+  const dret = (r==null)
+    ? `només ${a.length} parell${a.length===1?'':'s'}`
+    : `<i>r ${r.toFixed(2).replace('.',',')}</i>${forcaR(r)} · n=${a.length}`;
+  return `<div class="corr"><b>${label}</b><span>${dret}</span></div>`;
+}
+function scatter(P){
+  const pts = P.filter(x=>x.score!=null && x.min!=null);
+  if(pts.length<4) return '';
+  const W=320,H=180,ml=32,mb=26,mt=12,mr=10;
+  const xM = Math.max(60, ...pts.map(p=>p.min));
+  const yLo = Math.min(50, ...pts.map(p=>p.score)), yHi = 100;
+  const px = v => ml + (v/xM)*(W-ml-mr);
+  const py = v => mt + (1-(v-yLo)/(yHi-yLo))*(H-mt-mb);
+  const eix = `<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${H-mb}" stroke="var(--line)"/>
+    <line x1="${ml}" y1="${H-mb}" x2="${W-mr}" y2="${H-mb}" stroke="var(--line)"/>`;
+  const marques = `
+    <text x="${ml-6}" y="${py(yHi)+4}" text-anchor="end" font-size="9" fill="var(--dim)">${yHi}</text>
+    <text x="${ml-6}" y="${py(yLo)+4}" text-anchor="end" font-size="9" fill="var(--dim)">${yLo}</text>
+    <text x="${ml}" y="${H-mb+15}" text-anchor="start" font-size="9" fill="var(--dim)">0 min</text>
+    <text x="${W-mr}" y="${H-mb+15}" text-anchor="end" font-size="9" fill="var(--dim)">${xM} min</text>
+    <text x="4" y="${mt+4}" font-size="9" fill="var(--dim)" transform="rotate(-90 4 ${mt+4})" text-anchor="end">son /100</text>`;
+  const punts = pts.map(p=>`<circle cx="${px(p.min).toFixed(1)}" cy="${py(p.score).toFixed(1)}" r="3.4"
+    fill="${p.min>0?'var(--acid)':'var(--ice)'}" opacity=".85"/>`).join('');
+  return `<svg class="scat" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"
+    aria-label="Puntuació de son segons els minuts d'entrenament del mateix dia">${eix}${marques}${punts}</svg>
+    <p class="hint">Cada punt és una nit. Horitzontal: minuts entrenats aquell dia. Vertical: puntuació del son.</p>`;
+}
+function setmanes(S){
+  const w = new Map();
+  S.forEach(x=>{ const b = balDia(x); if(b===null) return;
+    const m = mondayOf(x.d), k = m.getTime();
+    const o = w.get(k) || {m, bal:0, n:0};
+    o.bal += b; o.n++; w.set(k,o); });
+  const arr = [...w.values()].sort((a,b)=>b.m-a.m).slice(0,12);
+  if(!arr.length) return '';
+  const mx = Math.max(1, ...arr.map(x=>Math.abs(x.bal)));
+  return arr.map(x=>{
+    const pos = x.bal>=0, pct = Math.abs(x.bal)/mx*50;
+    const st = pos ? `left:50%;width:${pct}%;background:var(--flame)`
+                   : `left:${50-pct}%;width:${pct}%;background:var(--ice)`;
+    return `<div class="bal">
+      <div class="wl">${pad(x.m.getDate())}/${pad(x.m.getMonth()+1)} · ${x.n}d</div>
+      <div class="bz"><i style="${st}"></i><s></s></div>
+      <div class="bv" style="color:var(--${pos?'flame':'ice'})">${fmtS(x.bal)}</div></div>`;
+  }).join('');
+}
+function stSet(n){ stDies=n; renderStats(); }
+function openStats(){ renderStats(); open_('shStats'); }
+function renderStats(){
+  const OPC = [[30,'30 dies'],[90,'90 dies'],[0,'Tot']];
+  document.getElementById('stChips').innerHTML = OPC.map(o=>
+    `<button class="chip${stDies===o[0]?' on':''}" onclick="stSet(${o[0]})">${o[1]}</button>`).join('');
+  const dies = stDies || Math.min(400, Math.ceil((Date.now()-primerDia())/86400000)+1);
+  const S = serie(dies);
+
+  /* --- balanç --- */
+  const amb = S.filter(x=>x.t.kcal>0);
+  const bal = amb.reduce((s,x)=>s+balDia(x), 0);
+  let h = `<div class="secttl">Balanç d'energia</div>`;
+  if(!amb.length){
+    h += `<div class="empty">Cap dia amb menjar registrat en aquest període.</div>`;
+  }else{
+    const mit = bal/amb.length;
+    h += `<div class="balrow" style="border:none;margin:0;padding:15px 0 6px">
+      <span class="bl">${amb.length} ${amb.length>1?'dies':'dia'} amb menjar registrat<br>de ${dies} del període</span>
+      <span class="bn" style="color:var(--${bal>=0?'flame':'ice'})">${fmtS(bal)}<small>kcal · ${fmtKg(bal)}</small></span></div>
+      <p class="hint">Mitjana de ${fmtS(mit)} kcal al dia respecte de la base (${CFG.base}) més el que crema cada entrenament.
+      Els dies sense menjar registrat no compten.</p>
+      <div style="margin-top:14px">${setmanes(S)}</div>`;
+  }
+
+  /* --- son i càrrega --- */
+  h += `<div class="secttl">Son i càrrega</div>`;
+  const P = S.filter(x=>x.t.S.length).map(x=>{
+    const n = x.t.S[0];
+    return {min:x.t.min, kcal:x.t.kcal, son:n.tot||null, score:n.score, hrv:n.hrv, rhr:n.rhr, rem:n.rem};
+  });
+  if(P.length<4){
+    h += `<div class="empty">Amb ${P.length} nit${P.length===1?'':'s'} en aquest període encara no hi ha prou dades.
+      A partir d'unes 10 comencen a dir alguna cosa.</div>`;
+  }else{
+    const ambE = P.filter(x=>x.min>0), sense = P.filter(x=>!x.min);
+    const sA = mitjana(ambE.map(x=>x.son).filter(v=>v)), sS = mitjana(sense.map(x=>x.son).filter(v=>v));
+    const qA = mitjana(ambE.map(x=>x.score).filter(v=>v!=null)), qS = mitjana(sense.map(x=>x.score).filter(v=>v!=null));
+    h += `<div class="stat2">
+      <div><span>Nits amb entrenament</span><b>${sA?hm(Math.round(sA)):'—'}</b>
+        <em>${qA?Math.round(qA)+'/100 · ':''}${ambE.length} nit${ambE.length===1?'':'s'}</em></div>
+      <div><span>Nits sense entrenament</span><b>${sS?hm(Math.round(sS)):'—'}</b>
+        <em>${qS?Math.round(qS)+'/100 · ':''}${sense.length} nit${sense.length===1?'':'s'}</em></div>
+    </div>`;
+    h += corrRow('Minuts entrenats → puntuació del son', P, x=>x.min, x=>x.score);
+    h += corrRow('Minuts entrenats → hores dormides', P, x=>x.min, x=>x.son);
+    h += corrRow('Minuts entrenats → VFC', P, x=>x.min, x=>x.hrv);
+    h += corrRow('Minuts entrenats → FC en repòs', P, x=>x.min, x=>x.rhr);
+    h += corrRow('kcal ingerides → puntuació del son', P, x=>x.kcal, x=>x.score);
+    h += scatter(P);
+    h += `<p class="hint">r va de −1 a +1 i només mesura si dues coses es mouen alhora, no que una causi l'altra.
+      Amb menys de 20 o 30 parells, tracta-ho com una pista, no com una conclusió.</p>`;
+  }
+  document.getElementById('statsBody').innerHTML = h;
 }
 
 /* ==================== PANTALLA REGISTRE ==================== */
@@ -1429,11 +1664,16 @@ async function saveEdit(){
   if(dv){ const [yy,mm,dd]=dv.split('-');
     e.dataStr=`${dd}/${mm}/${yy}`; e.horaStr=tv; e.ts=tsFrom(e.dataStr,e.horaStr);
     if(tbl==='sleep') e.inH=tv; }
+  /* id nou: primer puja la versió bona i després esborra la vella, mai a l'inrevés */
+  const idVell = e.id;
+  e.id = idVell.charAt(0) + Date.now() + '_e';
+  if(detail) detail.id = e.id;
   saveLocal(); close_('shDet'); render(); if(document.getElementById('shLog').classList.contains('on')) renderLog();
   toast('Canvis desats');
-  writing++; setSync('busy');
-  try{ await del(e.id); await push(tbl,e); setSync(true); }
-  catch(err){ setSync(false); toast('Actualitzat en local.'); }
+  encua({op:'push', tbl, o:e});
+  encua({op:'del', id:idVell});
+  writing++;
+  try{ const ok = await flushCua(); if(!ok) toast('Actualitzat en local; puja en reconnectar.'); }
   finally{ writing--; }
 }
 async function delEntry(){
@@ -1451,6 +1691,7 @@ function openData(){
   document.getElementById('cfC').value = CFG.hidr;
   document.getElementById('cfF').value = CFG.greix;
   document.getElementById('cfClau').value = USER;
+  renderExp();
   open_('shData');
 }
 async function saveCfg(){
@@ -1458,21 +1699,64 @@ async function saveCfg(){
   CFG.prot = num(val('cfP'))||CFG.prot; CFG.hidr = num(val('cfC'))||CFG.hidr;
   CFG.greix= num(val('cfF'))||CFG.greix;
   close_('shData'); render(); toast('Objectius actualitzats');
+  const pidVell = CFG.pid;
+  CFG.pid = 'p'+Date.now();
+  encua({op:'push', tbl:'perfil', o:{id:CFG.pid, ...CFG}});
+  if(pidVell) encua({op:'del', id:pidVell});
   writing++;
-  try{ if(CFG.pid) await del(CFG.pid);
-       CFG.pid = 'p'+Date.now();
-       await push('perfil', {id:CFG.pid, ...CFG}); setSync(true); }
-  catch(e){ setSync(false); }
+  try{ await flushCua(); }
   finally{ writing--; }
 }
+/* --- què i de quan s'exporta --- */
+const EXP = [['t','Entrenament','',   'trainings'],
+             ['f','Menjar',     'f',  'foods'],
+             ['s','Son',        's',  'sleep']];
+const EXPD = [[0,'Tot'],[90,'90 dies'],[30,'30 dies'],[7,'7 dies']];
+function expTotOn(){ return expSel.t && expSel.f && expSel.s; }
+function expTot(){ expSel = {t:true,f:true,s:true}; renderExp(); }
+function expTog(k){
+  const prova = {...expSel, [k]:!expSel[k]};
+  if(!prova.t && !prova.f && !prova.s){ toast("Deixa'n almenys un de marcat."); return; }
+  expSel = prova; renderExp();
+}
+function expSetDies(n){ expDies = n; renderExp(); }
+function expTall(){
+  if(!expDies) return 0;
+  const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-(expDies-1));
+  return d.getTime();
+}
+function expFilt(arr){ const c = expTall(); return c ? (arr||[]).filter(x=>x.ts>=c) : (arr||[]); }
+function expCount(){
+  return EXP.reduce((s,e)=> s + (expSel[e[0]] ? expFilt(D[e[3]]).length : 0), 0);
+}
+function expNom(){
+  const tipus = expTotOn() ? 'tot' : EXP.filter(e=>expSel[e[0]]).map(e=>e[1].toLowerCase()).join('-');
+  return tipus + (expDies ? '_'+expDies+'d' : '');
+}
+function expRows(){
+  return [...(expSel.t ? expFilt(D.trainings).map(x=>({...x,k:'t'})) : []),
+          ...(expSel.f ? expFilt(D.foods).map(x=>({...x,k:'f'})) : []),
+          ...(expSel.s ? expFilt(D.sleep).map(x=>({...x,k:'s'})) : [])].sort((a,b)=>a.ts-b.ts);
+}
+function renderExp(){
+  document.getElementById('expChips').innerHTML =
+    `<button class="chip${expTotOn()?' on':''}" onclick="expTot()">Tot</button>` +
+    EXP.map(e=>`<button class="chip${expSel[e[0]]?' on '+e[2]:''}" onclick="expTog('${e[0]}')">${e[1]}</button>`).join('');
+  document.getElementById('expDiesChips').innerHTML = EXPD.map(o=>
+    `<button class="chip${expDies===o[0]?' on s':''}" onclick="expSetDies(${o[0]})">${o[1]}</button>`).join('');
+  const c = expCount();
+  document.getElementById('expHint').textContent = c
+    ? `${c} registre${c>1?'s':''}${expSel.f?' · el JSON hi afegeix els teus ingredients':''}`
+    : 'Cap registre amb aquests filtres.';
+}
+
 function csvCell(v){ const s=(v==null)?'':String(v); return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
 function buildCSV(){
   const head = ['tipus','data','hora','esport_o_apat','detall','quantitat_g','km','minuts','fc_mitjana','fc_max',
     'kcal','proteina_g','hidrats_g','greix_g','ref_fit','notes','son_total_min','son_real_min','puntuacio',
     'continuitat','lleuger_min','profund_min','rem_min','interrupcions_min','vfc_ms','fc_repos','resp_rpm','recharge'];
   const E = n => new Array(n).fill('');
-  const rows = [...D.trainings.map(x=>({...x,k:'t'})), ...D.foods.map(x=>({...x,k:'f'})),
-                ...D.sleep.map(x=>({...x,k:'s'}))].sort((a,b)=>a.ts-b.ts).map(e=>{
+  const rows = expRows().map(e=>{
     if(e.k==='t') return ['entrenament',e.dataStr,e.horaStr,e.sport,'','',e.km??'',e.min??'',e.fc??'',e.fcMax??'',
       '','','','',e.fit||'',e.notes||'',...E(12)];
     if(e.k==='s') return ['son',e.dataStr,e.horaStr,'Son',e.outH||'',...E(10),e.notes||'',
@@ -1484,15 +1768,17 @@ function buildCSV(){
   return [head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
 }
 async function copyCSV(){
+  const c = expCount();
+  if(!c){ toast('No hi ha res a copiar amb aquests filtres.'); return; }
   const txt = buildCSV(), b = document.getElementById('copyBtn');
-  try{ await navigator.clipboard.writeText(txt); b.textContent='Copiat'; toast('Taula copiada');
+  try{ await navigator.clipboard.writeText(txt); b.textContent='Copiat'; toast(`Copiats ${c} registres`);
        setTimeout(()=>b.textContent='Copia la taula (CSV)',2400); }
   catch(e){ const box=document.getElementById('csvBox'); box.style.display='block'; box.value=txt;
             box.select(); toast('Selecciona i copia'); }
 }
-function saveBlob(text, ext, mime){
+function saveBlob(text, ext, mime, tag){
   try{ const d=new Date();
-    const fn = `registre_${USER}_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.${ext}`;
+    const fn = `registre_${USER}_${tag||'tot'}_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.${ext}`;
     const url = URL.createObjectURL(new Blob([text],{type:mime}));
     const a = document.createElement('a'); a.href=url; a.download=fn;
     document.body.appendChild(a); a.click(); a.remove();
@@ -1500,8 +1786,12 @@ function saveBlob(text, ext, mime){
   }catch(e){ toast('El navegador ho ha bloquejat. Fes servir copiar.'); }
 }
 function downloadJSON(){
-  saveBlob(JSON.stringify({v:3, usuari:USER, trainings:D.trainings, foods:D.foods,
-    sleep:D.sleep, custom:D.custom, recents:D.recents}), 'json', 'application/json');
+  if(!expCount()){ toast('No hi ha res a descarregar amb aquests filtres.'); return; }
+  const j = {v:3, usuari:USER, parcial:!expTotOn() || !!expDies};
+  if(expSel.t) j.trainings = expFilt(D.trainings);
+  if(expSel.f){ j.foods = expFilt(D.foods); j.custom = D.custom; j.recents = D.recents; }
+  if(expSel.s) j.sleep = expFilt(D.sleep);
+  saveBlob(JSON.stringify(j), 'json', 'application/json', expNom());
 }
 function loadFile(ev){
   const f = ev.target.files && ev.target.files[0]; if(!f) return;
@@ -1564,9 +1854,12 @@ async function importText(raw0){
   if(!added.length){ toast('Res de nou per importar.'); return; }
   saveLocal(); close_('shData'); render();
   toast(`Pujant ${added.length} registres…`);
-  let ok=0; for(const [tbl,o] of added){ try{ await push(tbl,o); ok++; }catch(e){} }
-  setSync(ok===added.length); render();
-  toast(`Importats ${ok}/${added.length}`);
+  added.forEach(([tbl,o])=>encua({op:'push', tbl, o}));
+  writing++;
+  let ok;
+  try{ ok = await flushCua(); } finally{ writing--; }
+  render();
+  toast(ok ? `Importats ${added.length}` : `${added.length} importats en local; pujaran en reconnectar`);
 }
 
 /* ==================== ARRENCADA ==================== */
