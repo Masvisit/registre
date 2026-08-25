@@ -397,6 +397,14 @@ body{scrollbar-color:var(--line) transparent}
 .mealhead{margin-top:14px}
 .mesbtn{margin-top:16px}
 
+/* --- peu de versió --- */
+.appver{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim)}
+.appver b{color:var(--ink);font-weight:600}
+.login .appver{margin-top:30px;border-top:none;padding-top:0}
+@media(min-width:980px){.appver{grid-column:1/-1}}
+
 /* ============ TENDENCIES ============ */
 .balrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
@@ -453,6 +461,7 @@ body{scrollbar-color:var(--line) transparent}
       <h1>Registre<i>.</i></h1>
       <p>Entrenament · Nutrició · Son</p>
     </div>
+    <div class="appver" id="appVerLogin"></div>
 
     <div id="stepWho">
       <div id="userList"></div>
@@ -542,6 +551,7 @@ body{scrollbar-color:var(--line) transparent}
   </div>
   </div>
   </div>
+  <div class="appver" id="appVer"></div>
 </div>
 </div>
 
@@ -574,7 +584,9 @@ body{scrollbar-color:var(--line) transparent}
       <div><label>Temps (min)</label><input type="text" inputmode="numeric" id="tMin" placeholder="—"></div></div>
     <div class="g2"><div><label>FC mitjana</label><input type="text" inputmode="numeric" id="tFc" placeholder="—"></div>
       <div><label>FC màxima</label><input type="text" inputmode="numeric" id="tFcMax" placeholder="—"></div></div>
-    <label>Referència FIT</label><input type="text" id="tFit" placeholder="p. ex. Polar 13/08 matí">
+    <div class="g2"><div><label>kcal del rellotge</label><input type="text" inputmode="numeric" id="tKcal" placeholder="—"></div>
+      <div><label>Referència FIT</label><input type="text" id="tFit" placeholder="p. ex. Polar 13/08"></div></div>
+    <p class="hint">Si deixes les kcal en blanc, les estimo amb l'esport, el temps i el teu pes.</p>
     <label>Notes</label><textarea id="tNotes" placeholder="Sèries, càrregues, sensacions…"></textarea>
     <button class="go" onclick="saveTrain()">Desa</button>
   </div>
@@ -1058,12 +1070,16 @@ function tsFrom(dataStr, horaStr){
   return new Date(yy, mm-1, dd, hh||0, mi||0, 0, 0).getTime();
 }
 function sameDay(dataStr, d){ return dataStr === dstr(d); }
-/* despesa estimada d'un entrenament */
+/* despesa: si l'has mesurada amb el rellotge mana el teu valor; si no, s'estima */
+function burnMan(t){ return t && t.kcal!=null && t.kcal!=='' && !isNaN(t.kcal) && +t.kcal>0; }
 function burnOf(t){
+  if(burnMan(t)) return Math.round(+t.kcal);
   const met = METS[t.sport] || 5;
   const min = t.min || 0;
   return Math.round(met * (CFG?CFG.pes:80) * (min/60));
 }
+/* el titllet només hi és quan la xifra és estimada */
+function burnTxt(t){ return (burnMan(t)?'':'~') + burnOf(t) + ' kcal'; }
 
 /* ==================== PERSONES I ACCÉS ==================== */
 /* La clau del full es deriva del nom + codi. Sense el codi correcte es calcula
@@ -1202,7 +1218,8 @@ function rowToEntry(r){
   const t = clean(r.tipus), data = clean(r.data), hora = clean(r.hora), ts = tsFrom(data,hora);
   if(t==='entrenament') return {tbl:'trainings', o:{id:clean(r.id), ts, dataStr:data, horaStr:hora,
     sport:clean(r.esport_o_apat), km:num(r.km), min:num(r.minuts),
-    fc:num(r.fc_mitjana), fcMax:num(r.fc_max), fit:clean(r.ref_fit), notes:clean(r.notes)}};
+    fc:num(r.fc_mitjana), fcMax:num(r.fc_max), kcal:num(r.kcal),
+    fit:clean(r.ref_fit), notes:clean(r.notes)}};
   if(t==='son') return {tbl:'sleep', o:{id:clean(r.id), ts, dataStr:data, horaStr:hora,
     inH:hora, outH:clean(r.detall), tot:num(r.son_total_min)||0, real:num(r.son_real_min),
     score:num(r.puntuacio), cont:num(r.continuitat), light:num(r.lleuger_min), deep:num(r.profund_min),
@@ -1217,7 +1234,8 @@ function entryToRow(tbl,o){
   if(tbl==='perfil') return {id:o.id, usuari:USER, tipus:'perfil', detall:o.nom,
     quantitat_g:o.pes, kcal:o.base, proteina_g:o.prot, hidrats_g:o.hidr, greix_g:o.greix};
   if(tbl==='trainings') return {...base, tipus:'entrenament', esport_o_apat:o.sport,
-    km:o.km??'', minuts:o.min??'', fc_mitjana:o.fc??'', fc_max:o.fcMax??'', ref_fit:o.fit||'', notes:o.notes||''};
+    km:o.km??'', minuts:o.min??'', fc_mitjana:o.fc??'', fc_max:o.fcMax??'', kcal:o.kcal??'',
+    ref_fit:o.fit||'', notes:o.notes||''};
   if(tbl==='sleep') return {...base, tipus:'son', esport_o_apat:'Son', detall:o.outH||'', notes:o.notes||'',
     son_total_min:o.tot??'', son_real_min:o.real??'', puntuacio:o.score??'', continuitat:o.cont??'',
     lleuger_min:o.light??'', profund_min:o.deep??'', rem_min:o.rem??'', interrupcions_min:o.intr??'',
@@ -1344,6 +1362,7 @@ function totsDia(d){
     kcal:F.reduce((s,x)=>s+x.kcal,0), p:F.reduce((s,x)=>s+x.p,0),
     c:F.reduce((s,x)=>s+x.c,0), f:F.reduce((s,x)=>s+x.f,0),
     min:T.reduce((s,x)=>s+(x.min||0),0), burn:T.reduce((s,x)=>s+burnOf(x),0),
+    burnExacte: T.length>0 && T.every(burnMan),
     son:S.length? S[0].tot : 0, score:S.length? S[0].score : null
   };
 }
@@ -1418,7 +1437,8 @@ function render(){
 
   document.getElementById('trMin').innerHTML = t.min ? `${t.min}<small>min</small>` : `0<small>min</small>`;
   document.getElementById('trSub').innerHTML = t.T.length
-    ? t.T.map(x=>`${x.sport}${x.min?' · '+x.min+"'":''}`).join('<br>') + `<br><b>~${t.burn} kcal</b>`
+    ? t.T.map(x=>`${x.sport}${x.min?' · '+x.min+"'":''}`).join('<br>') +
+      `<br><b>${t.burnExacte?'':'~'}${t.burn} kcal</b>`
     : 'cap sessió avui';
 
   const lastS = [...D.sleep].sort((a,b)=>b.ts-a.ts)[0];
@@ -1642,7 +1662,7 @@ function fila(e, ambData){
   const quan = (ambData ? e.dataStr+' · ' : '') + (e.horaStr||'');
   if(e.k==='t') return `<button class="row" onclick="openDet('t','${e.id}')">
     <div class="bar" style="background:var(--acid)"></div><div class="m"><b>${e.sport}</b>
-    <span>${quan}${e.km?' · '+e.km+' km':''}${e.fc?' · '+e.fc+' ppm':''} · ~${burnOf(e)} kcal</span></div>
+    <span>${quan}${e.km?' · '+e.km+' km':''}${e.fc?' · '+e.fc+' ppm':''} · ${burnTxt(e)}</span></div>
     <div class="r">${e.min||'—'}<i>min</i></div></button>`;
   if(e.k==='s') return `<button class="row" onclick="openDet('s','${e.id}')">
     <div class="bar" style="background:var(--ice)"></div><div class="m"><b>Son</b>
@@ -1700,7 +1720,7 @@ function renderLog(){
   }else if(fTip==='t'){
     tot = cel(T.length,'sessions') + cel(sum(T,x=>x.min),'min')
         + cel((Math.round(sum(T,x=>x.km)*10)/10).toString().replace('.',','),'km')
-        + cel(Math.round(sum(T,x=>burnOf(x))).toLocaleString('ca-ES'),'kcal');
+        + cel(Math.round(sum(T,x=>burnOf(x))).toLocaleString('ca-ES'), T.every(burnMan)&&T.length?'kcal':'kcal aprox');
   }else if(fTip==='s'){
     const nits = S.filter(x=>x.tot), punt = S.filter(x=>x.score);
     tot = cel(S.length, S.length===1?'nit':'nits') + cel(nits.length?hm(Math.round(sum(nits,x=>x.tot)/nits.length)):'—','mitjana')
@@ -1764,8 +1784,8 @@ async function saveTrain(){
   const [yy,mm,dd] = dv.split('-');
   const o = {id:'t'+Date.now(), dataStr:`${dd}/${mm}/${yy}`, horaStr:tv, ts:tsFrom(`${dd}/${mm}/${yy}`,tv),
     sport, km, min:mi?Math.round(mi):null, fc:num(val('tFc')), fcMax:num(val('tFcMax')),
-    fit:val('tFit'), notes:val('tNotes')};
-  ['tKm','tMin','tFc','tFcMax','tFit','tNotes'].forEach(i=>document.getElementById(i).value='');
+    kcal:num(val('tKcal')), fit:val('tFit'), notes:val('tNotes')};
+  ['tKm','tMin','tFc','tFcMax','tKcal','tFit','tNotes'].forEach(i=>document.getElementById(i).value='');
   close_('shTrain'); toast('Entrenament desat');
   await add('trainings', o);
 }
@@ -1882,51 +1902,161 @@ async function saveSleep(){
 }
 
 /* ==================== DETALL I EDICIÓ ==================== */
+/* ---- fitxa editable: tot el que hi ha desat es pot canviar ---- */
+let edSport = null, edMeal = null, edBase = null;
+const _v = v => (v==null || v==='') ? '' : String(v).replace(/"/g,'&quot;');
+const _r1 = v => (v==null||v==='') ? '' : (Math.round(v*10)/10);
+function fNum(l,id,v,extra){
+  return `<div><label>${l}</label><input type="text" inputmode="decimal" id="${id}" value="${_v(v)}" ${extra||''}></div>`;
+}
+function fTxt(l,id,v){ return `<div><label>${l}</label><input type="text" id="${id}" value="${_v(v)}"></div>`; }
+function fTime(l,id,v,extra){ return `<div><label>${l}</label><input type="time" id="${id}" value="${_v(v)}" ${extra||''}></div>`; }
+
+function edPickSport(x){ edSport=x; edChips(); }
+function edPickMeal(x){ edMeal=x; edChips(); }
+function edChips(){
+  const a = document.getElementById('edSportChips');
+  if(a) a.innerHTML = SPORTS.map(x=>
+    `<button class="chip${x===edSport?' on':''}" onclick="edPickSport(${JSON.stringify(x).replace(/"/g,'&quot;')})">${x}</button>`).join('');
+  const b = document.getElementById('edMealChips');
+  if(b) b.innerHTML = MEALS.map(x=>
+    `<button class="chip${x===edMeal?' on f':''}" onclick="edPickMeal(${JSON.stringify(x).replace(/"/g,'&quot;')})">${x}</button>`).join('');
+}
+/* menjar: en canviar els grams, recalcula els valors; després els pots retocar a mà */
+function edRecalc(){
+  const g = num(val('edG')); if(!g || g<=0 || !edBase) return;
+  const m = allIng()[val('edName') || edBase.name];
+  let k,pr,ca,gr;
+  if(m){ const r=g/100; k=m[0]*r; pr=m[1]*r; ca=m[2]*r; gr=m[3]*r; }
+  else if(edBase.grams){ const r=g/edBase.grams;
+    k=edBase.kcal*r; pr=edBase.p*r; ca=edBase.c*r; gr=edBase.f*r; }
+  else return;
+  document.getElementById('edK').value = Math.round(k);
+  document.getElementById('edP').value = _r1(pr);
+  document.getElementById('edC').value = _r1(ca);
+  document.getElementById('edF').value = _r1(gr);
+  const av = document.getElementById('edAuto');
+  if(av) av.textContent = m ? 'Recalculat amb la fitxa de l\'ingredient. Pots sobreescriure qualsevol valor.'
+                            : 'Recalculat en proporció als valors que hi havia.';
+}
+/* son: amb les dues hores, el total es calcula sol */
+function edSonTot(){
+  const a = val('edTime'), b = val('edOut');
+  if(!a || !b) return;
+  const [h1,m1]=a.split(':').map(Number), [h2,m2]=b.split(':').map(Number);
+  document.getElementById('edTot').value = ((h2*60+m2)-(h1*60+m1)+1440)%1440;
+}
+function edBurnHint(){
+  const el = document.getElementById('edBurn'); if(!el) return;
+  const man = num(val('edKcal')), mi = num(val('edMin'))||0;
+  if(man>0){
+    el.innerHTML = `Despesa: <b style="color:var(--ink)">${Math.round(man)} kcal</b> (la del rellotge).
+      L'estimació per a ${edSport} seria ~${Math.round((METS[edSport]||5)*(CFG.pes||80)*(mi/60))} kcal.`;
+    return;
+  }
+  el.innerHTML = mi ? `Despesa estimada: <b style="color:var(--ink)">~${Math.round((METS[edSport]||5)*(CFG.pes||80)*(mi/60))} kcal</b>
+    (${edSport}, ${CFG.pes} kg). Si el rellotge te'n dóna una altra, escriu-la a sobre.`
+    : 'Posa-hi el temps o la distància.';
+}
+
 function openDet(k,id){
   const src = k==='t'?D.trainings : k==='s'?D.sleep : D.foods;
   const e = src.find(x=>x.id===id); if(!e) return;
   detail = {k,id};
+  document.getElementById('detTitle').textContent = k==='t'?(e.sport||'Entrenament') : k==='s'?'Son' : (e.name||'Aliment');
+
   const da = e.dataStr||'', ho = e.horaStr||'';
-  document.getElementById('detTitle').textContent = k==='t'?e.sport : k==='s'?'Son' : e.name;
-  let rows;
-  if(k==='t') rows = [['Esport',e.sport],['Distància',e.km?e.km+' km':'—'],['Temps',e.min?e.min+' min':'—'],
-    ['Despesa','~'+burnOf(e)+' kcal'],['FC mitjana',e.fc?e.fc+' ppm':'—'],['FC màxima',e.fcMax?e.fcMax+' ppm':'—'],
-    ['FIT',e.fit||'—'],['Notes',e.notes||'—']];
-  else if(k==='s') rows = [['A dormir',e.inH||'—'],['Llevat',e.outH||'—'],['Total',hm(e.tot)],
-    ['Son real',e.real?hm(e.real):'—'],['Puntuació',e.score?e.score+'/100':'—'],['Continuïtat',e.cont??'—'],
-    ['Lleuger',e.light?hm(e.light):'—'],['Profund',e.deep?hm(e.deep):'—'],['REM',e.rem?hm(e.rem):'—'],
-    ['Interrupcions',e.intr?e.intr+' min':'—'],['VFC',e.hrv?e.hrv+' ms':'—'],['FC repòs',e.rhr?e.rhr+' ppm':'—'],
-    ['Respiració',e.br?e.br+' rpm':'—'],['Recharge',e.rech||'—'],['Notes',e.notes||'—']];
-  else rows = [['Àpat',e.meal],['Quantitat',e.grams+' g'],['Energia',Math.round(e.kcal)+' kcal'],
-    ['Proteïna',e.p.toFixed(1)+' g'],['Hidrats',e.c.toFixed(1)+' g'],['Greix',e.f.toFixed(1)+' g']];
-  document.getElementById('detBody').innerHTML = `<p class="hint">${(da||ho)?da+' · '+ho:'sense data'}</p>
-    <div class="det">${rows.map(r=>`<div class="bk"><b>${r[0]}</b><small>${r[1]}</small></div>`).join('')}</div>`;
   const [dd,mm,yy] = da.split('/');
   const n = new Date();
   const isoV = (yy&&mm&&dd) ? `${yy}-${mm}-${dd}` : iso(n);
   const hoV  = ho || `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  let h = '';
+
+  if(k==='t'){
+    edSport = e.sport || SPORTS[0];
+    h = `<div class="g2"><div><label>Data</label><input type="date" id="edDate" value="${isoV}"></div>
+         ${fTime('Hora','edTime',hoV)}</div>
+      <label>Esport</label><div class="chips" id="edSportChips"></div>
+      <div class="g2">${fNum('Distància (km)','edKm',e.km)}${fNum('Temps (min)','edMin',e.min,'oninput="edBurnHint()"')}</div>
+      <div class="g2">${fNum('FC mitjana','edFc',e.fc)}${fNum('FC màxima','edFcMax',e.fcMax)}</div>
+      <div class="g2">${fNum('kcal del rellotge','edKcal',e.kcal,'oninput="edBurnHint()"')}${fTxt('Referència FIT','edFit',e.fit)}</div>
+      <label>Notes</label><textarea id="edNotes">${_v(e.notes)}</textarea>
+      <p class="hint" id="edBurn"></p>`;
+  }else if(k==='s'){
+    h = `<label>Nit del</label><input type="date" id="edDate" value="${isoV}">
+      <div class="g2">${fTime('A dormir','edTime',e.inH||hoV,'onchange="edSonTot()"')}
+        ${fTime('Llevat','edOut',e.outH,'onchange="edSonTot()"')}</div>
+      <div class="g2">${fNum('Total (min)','edTot',e.tot)}${fNum('Puntuació /100','edScore',e.score)}</div>
+      <details open><summary>Detalls del Polar</summary>
+        <div class="g2">${fNum('Son real (min)','edReal',e.real)}${fNum('Continuïtat','edCont',e.cont)}</div>
+        <div class="g3">${fNum('Lleuger','edLight',e.light)}${fNum('Profund','edDeep',e.deep)}${fNum('REM','edRem',e.rem)}</div>
+        <div class="g2">${fNum('Interrupcions','edIntr',e.intr)}${fNum('VFC (ms)','edHrv',e.hrv)}</div>
+        <div class="g3">${fNum('FC repòs','edRhr',e.rhr)}${fNum('Resp.','edBr',e.br)}${fTxt('Recharge','edRech',e.rech)}</div>
+      </details>
+      <label>Notes</label><textarea id="edNotes">${_v(e.notes)}</textarea>`;
+  }else{
+    edMeal = e.meal || MEALS[0];
+    edBase = {name:e.name, grams:e.grams, kcal:e.kcal, p:e.p, c:e.c, f:e.f};
+    const conegut = !!allIng()[e.name];
+    h = `<div class="g2"><div><label>Data</label><input type="date" id="edDate" value="${isoV}"></div>
+         ${fTime('Hora','edTime',hoV)}</div>
+      <label>Àpat</label><div class="chips" id="edMealChips"></div>
+      <label>Aliment</label><input type="text" id="edName" value="${_v(e.name)}">
+      <label>Quantitat (g o ml)</label>
+      <input type="text" inputmode="decimal" id="edG" value="${_v(e.grams)}" oninput="edRecalc()">
+      <p class="hint" id="edAuto">${conegut
+        ? 'En canviar els grams es recalculen els valors amb la fitxa de l\'ingredient.'
+        : 'Aquest aliment no és a la base: en canviar els grams es recalcula en proporció.'}</p>
+      <div class="g2">${fNum('kcal','edK',Math.round(e.kcal))}${fNum('Proteïna (g)','edP',_r1(e.p))}</div>
+      <div class="g2">${fNum('Hidrats (g)','edC',_r1(e.c))}${fNum('Greix (g)','edF',_r1(e.f))}</div>`;
+  }
+
+  document.getElementById('detBody').innerHTML = h;
   document.getElementById('detEdit').innerHTML =
-    (k==='f' ? `<label>Quantitat (g)</label><input type="text" inputmode="decimal" id="edG" value="${e.grams}">` : '')
-    + `<label>Data i hora</label><div class="g2">
-       <input type="date" id="edDate" value="${isoV}"><input type="time" id="edTime" value="${hoV}"></div>
-       <button class="go" onclick="saveEdit()">Desa els canvis</button>`;
+    `<button class="go${k==='f'?' f':k==='s'?' s':''}" onclick="saveEdit()">Desa els canvis</button>`;
+  edChips();
+  if(k==='t') edBurnHint();
   open_('shDet');
 }
+
 async function saveEdit(){
   const tbl = detail.k==='t'?'trainings' : detail.k==='s'?'sleep' : 'foods';
   const e = D[tbl].find(x=>x.id===detail.id); if(!e) return;
-  if(tbl==='foods'){
-    const g = num(document.getElementById('edG').value);
-    if(g && g>0 && g!==e.grams){
-      const m = allIng()[e.name];
-      if(m){ const r=g/100; Object.assign(e,{grams:g,kcal:m[0]*r,p:m[1]*r,c:m[2]*r,f:m[3]*r}); }
-      else { const r=g/e.grams; Object.assign(e,{grams:g,kcal:e.kcal*r,p:e.p*r,c:e.c*r,f:e.f*r}); }
+
+  const dv = val('edDate'), tv = val('edTime')||'00:00';
+  if(!dv){ toast('Falta la data.'); return; }
+  const [yy,mm,dd] = dv.split('-');
+  const patch = {dataStr:`${dd}/${mm}/${yy}`, horaStr:tv};
+  patch.ts = tsFrom(patch.dataStr, patch.horaStr);
+
+  if(tbl==='trainings'){
+    const mi = num(val('edMin')), km = num(val('edKm'));
+    if(!mi && !km){ toast('Posa-hi el temps o la distància.'); return; }
+    Object.assign(patch, {sport:edSport, km, min:mi?Math.round(mi):null,
+      fc:num(val('edFc')), fcMax:num(val('edFcMax')), kcal:num(val('edKcal')),
+      fit:val('edFit'), notes:val('edNotes')});
+  }else if(tbl==='sleep'){
+    let tot = num(val('edTot'));
+    const inH = tv, outH = val('edOut');
+    if(!tot && inH && outH){
+      const [h1,m1]=inH.split(':').map(Number), [h2,m2]=outH.split(':').map(Number);
+      tot = ((h2*60+m2)-(h1*60+m1)+1440)%1440;
     }
+    if(!tot){ toast('Posa-hi les hores o els minuts.'); return; }
+    Object.assign(patch, {inH, outH, tot:Math.round(tot), real:num(val('edReal')),
+      score:num(val('edScore')), cont:num(val('edCont')), light:num(val('edLight')),
+      deep:num(val('edDeep')), rem:num(val('edRem')), intr:num(val('edIntr')),
+      hrv:num(val('edHrv')), rhr:num(val('edRhr')), br:num(val('edBr')),
+      rech:val('edRech'), notes:val('edNotes')});
+  }else{
+    const nom = val('edName'), g = num(val('edG'));
+    if(!nom){ toast('Falta el nom de l\'aliment.'); return; }
+    if(!g || g<=0){ toast('Posa-hi la quantitat.'); return; }
+    Object.assign(patch, {name:nom, meal:edMeal, grams:g,
+      kcal:num(val('edK'))||0, p:num(val('edP'))||0, c:num(val('edC'))||0, f:num(val('edF'))||0});
   }
-  const dv = document.getElementById('edDate').value, tv = document.getElementById('edTime').value||'00:00';
-  if(dv){ const [yy,mm,dd]=dv.split('-');
-    e.dataStr=`${dd}/${mm}/${yy}`; e.horaStr=tv; e.ts=tsFrom(e.dataStr,e.horaStr);
-    if(tbl==='sleep') e.inH=tv; }
+  Object.assign(e, patch);
+
   /* id nou: primer puja la versió bona i després esborra la vella, mai a l'inrevés */
   const idVell = e.id;
   e.id = idVell.charAt(0) + Date.now() + '_e';
@@ -2021,7 +2151,7 @@ function buildCSV(){
   const E = n => new Array(n).fill('');
   const rows = expRows().map(e=>{
     if(e.k==='t') return ['entrenament',e.dataStr,e.horaStr,e.sport,'','',e.km??'',e.min??'',e.fc??'',e.fcMax??'',
-      '','','','',e.fit||'',e.notes||'',...E(12)];
+      e.kcal??'','','','',e.fit||'',e.notes||'',...E(12)];
     if(e.k==='s') return ['son',e.dataStr,e.horaStr,'Son',e.outH||'',...E(10),e.notes||'',
       e.tot??'',e.real??'',e.score??'',e.cont??'',e.light??'',e.deep??'',e.rem??'',e.intr??'',
       e.hrv??'',e.rhr??'',e.br??'',e.rech||''];
@@ -2097,7 +2227,7 @@ async function importText(raw0){
       if(tipus==='entrenament'){
         if(D.trainings.some(x=>x.dataStr===dataStr&&x.horaStr===horaStr&&x.sport===cc)) continue;
         const o={id:'t'+ts+'_'+i, ts, dataStr, horaStr, sport:cc, km:num(km), min:num(mn),
-          fc:num(fc), fcMax:num(fcM), fit:fit||'', notes:notes||''};
+          fc:num(fc), fcMax:num(fcM), kcal:num(kc), fit:fit||'', notes:notes||''};
         D.trainings.push(o); added.push(['trainings',o]);
       }else if(tipus==='menjar'){
         if(D.foods.some(x=>x.dataStr===dataStr&&x.horaStr===horaStr&&x.name===det&&x.grams===num(gr))) continue;
@@ -2125,8 +2255,18 @@ async function importText(raw0){
   toast(ok ? `Importats ${added.length}` : `${added.length} importats en local; pujaran en reconnectar`);
 }
 
+/* ==================== VERSIÓ ====================
+   Actualitza només aquestes dues línies a cada desplegament. */
+const APP_VER  = 'v2.0';
+const APP_DATE = '25/08/2026';
+function pintaVersio(){
+  const txt = `<b>${APP_VER}</b> · actualitzat el ${APP_DATE}`;
+  const a = document.getElementById('appVer');       if(a) a.innerHTML = txt;
+  const b = document.getElementById('appVerLogin');   if(b) b.innerHTML = txt;
+}
+
 /* ==================== ARRENCADA ==================== */
-renderUsers();
+renderUsers(); pintaVersio();
 try{ const u = JSON.parse(localStorage.getItem('reg:ultim')||'null');
      if(u && u.clau) entra(u.clau, u.nom, null, []); }catch(e){}
 </script>
