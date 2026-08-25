@@ -181,10 +181,6 @@ textarea{font-family:'Inter',sans-serif;min-height:62px;resize:vertical}
 .empty{color:var(--dim);font-size:15px;text-align:center;padding:34px 18px;border:1px dashed var(--line);margin-top:14px}
 
 /* dia al registre */
-.daynav{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);position:sticky;top:52px;background:var(--bg);z-index:2}
-.daynav button{font-size:19px;padding:2px 9px;color:var(--dim);border:1px solid var(--line)}
-.daynav .dd{flex:1;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:600;
-  font-size:17px;text-transform:uppercase;letter-spacing:.03em}
 .daytot{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:13px 0;border-bottom:1px solid var(--line)}
 .daytot div{text-align:center}
 .daytot b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:21px;line-height:1}
@@ -273,15 +269,18 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
   .act b{font-size:19px}
   .act.wide{grid-column:auto}
   /* fulls com a diàlegs centrats */
-  .sheet{background:rgba(0,0,0,.55);padding:40px 20px;overflow-y:auto}
+  .sheet{background:rgba(0,0,0,.55);padding:40px 20px;overflow:hidden}
   [data-theme="light"] .sheet{background:rgba(30,45,35,.42)}
   .sheet.on{display:flex;align-items:flex-start;justify-content:center}
   .sheet > .sh-top{display:none}
+  /* el diàleg és el contenidor que fa scroll: així el capçal enganxat es queda
+     al seu lloc i les files no li passen per sobre */
   .dlg{background:var(--bg);border:1px solid var(--line);width:100%;max-width:640px;
+    max-height:calc(100vh - 80px);overflow-y:auto;overscroll-behavior:contain;
     box-shadow:0 24px 70px rgba(0,0,0,.5)}
   .dlg .sh-top{display:flex;position:sticky;top:0}
   .dlg .wrap{max-width:none;padding:0 26px 30px}
-  .srch,.daynav{top:0}
+  .srch{top:52px}
   .login{max-width:440px}
   .login .mark img{height:84px}
   .login .mark h1{font-size:56px}
@@ -380,6 +379,23 @@ body{scrollbar-color:var(--line) transparent}
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
     transition-duration:.001ms!important}
 }
+
+/* --- pantalla de registre: filtres i agrupació per dia --- */
+.sh-top{z-index:6}
+.srch{z-index:4}
+.filtres{padding:13px 0 15px;border-bottom:1px solid var(--line);display:grid;gap:7px}
+.filtres .chips{gap:5px}
+.filtres .chip{padding:8px 11px;font-size:14px}
+.daytot{grid-template-columns:repeat(auto-fit,minmax(66px,1fr))}
+.dayhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin:22px 0 0;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.dayhead b{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:18px;
+  text-transform:uppercase;letter-spacing:.03em}
+.dayhead span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);
+  text-align:right;white-space:nowrap}
+.dayhead.avui b{color:var(--acid)}
+.mealhead{margin-top:14px}
+.mesbtn{margin-top:16px}
 
 /* ============ TENDENCIES ============ */
 .balrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
@@ -533,12 +549,12 @@ body{scrollbar-color:var(--line) transparent}
 <div class="sheet" id="shLog">
 <div class="dlg">
   <div class="sh-top"><button class="x" onclick="close_('shLog')">×</button><h2>Registre</h2>
-    <button class="ic lbl" onclick="togAll()" id="allBtn" style="border:1px solid var(--line);padding:6px 9px">DIA</button></div>
+    <span class="lbl" id="logCount"></span></div>
   <div class="wrap">
-    <div class="daynav" id="dayNav">
-      <button onclick="shiftDay(-1)">‹</button>
-      <div class="dd" id="navTxt"></div>
-      <button onclick="shiftDay(1)">›</button>
+    <div class="filtres">
+      <div class="chips" id="fTipus"></div>
+      <div class="chips" id="fPeriode"></div>
+      <div class="chips" id="fSub"></div>
     </div>
     <div class="daytot" id="dayTot"></div>
     <div id="logList"></div>
@@ -1012,7 +1028,8 @@ const PERSONES_BASE = {
 let USER = null, CFG = null;
 let D = {trainings:[],foods:[],sleep:[],custom:{},recents:[]};
 let sport = SPORTS[0], meal = MEALS[0], basket = [], pending = null, detail = null;
-let cat = '', logAll = false, navDay = new Date();
+let cat = '';
+let fTip = 'tot', fPer = '7', fSport = '', fMeal = '', logLim = 200;
 let expSel = {t:true, f:true, s:true}, expDies = 0, stDies = 30;
 let cua = [], flushing = false;
 let online = false, writing = 0, tmr = null, timer = null;
@@ -1592,49 +1609,143 @@ function renderStats(){
 }
 
 /* ==================== PANTALLA REGISTRE ==================== */
-function openLog(){ navDay = new Date(); logAll = false; renderLog(); open_('shLog'); }
-function shiftDay(n){ navDay.setDate(navDay.getDate()+n); renderLog(); }
-function togAll(){ logAll=!logAll; document.getElementById('allBtn').textContent = logAll?'TOT':'DIA'; renderLog(); }
+const TIPUS = [['tot','Tot',''],['t','Entrenaments',''],['f','Menjars','f'],['s','Son','s']];
+const PERIODES = [['avui','Avui'],['ahir','Ahir'],['7','7 dies'],['30','30 dies'],['tot','Tot']];
+
+function openLog(){ logLim = 200; renderLog(); open_('shLog'); }
+function fSet(k,v){
+  if(k==='tip'){ fTip = v; fSport = ''; fMeal = ''; }
+  else if(k==='per') fPer = v;
+  else if(k==='sp')  fSport = (fSport===v ? '' : v);
+  else if(k==='ml')  fMeal  = (fMeal===v  ? '' : v);
+  logLim = 200; renderLog();
+}
+function dinsPeriode(x){
+  if(fPer==='tot') return true;
+  const avui = new Date();
+  if(fPer==='avui') return x.dataStr === dstr(avui);
+  if(fPer==='ahir'){ const d=new Date(avui); d.setDate(d.getDate()-1); return x.dataStr === dstr(d); }
+  const d = new Date(avui); d.setHours(0,0,0,0); d.setDate(d.getDate()-(+fPer-1));
+  return x.ts >= d.getTime();
+}
+function logItems(){
+  let arr = [];
+  if(fTip==='tot' || fTip==='t') arr = arr.concat(D.trainings.map(x=>({...x,k:'t'})));
+  if(fTip==='tot' || fTip==='f') arr = arr.concat(D.foods.map(x=>({...x,k:'f'})));
+  if(fTip==='tot' || fTip==='s') arr = arr.concat(D.sleep.map(x=>({...x,k:'s'})));
+  arr = arr.filter(dinsPeriode);
+  if(fSport) arr = arr.filter(x=>x.k!=='t' || x.sport===fSport);
+  if(fMeal)  arr = arr.filter(x=>x.k!=='f' || x.meal===fMeal);
+  return arr.sort((a,b)=>b.ts-a.ts);
+}
+function fila(e, ambData){
+  const quan = (ambData ? e.dataStr+' · ' : '') + (e.horaStr||'');
+  if(e.k==='t') return `<button class="row" onclick="openDet('t','${e.id}')">
+    <div class="bar" style="background:var(--acid)"></div><div class="m"><b>${e.sport}</b>
+    <span>${quan}${e.km?' · '+e.km+' km':''}${e.fc?' · '+e.fc+' ppm':''} · ~${burnOf(e)} kcal</span></div>
+    <div class="r">${e.min||'—'}<i>min</i></div></button>`;
+  if(e.k==='s') return `<button class="row" onclick="openDet('s','${e.id}')">
+    <div class="bar" style="background:var(--ice)"></div><div class="m"><b>Son</b>
+    <span>${quan}${e.score?' · '+e.score+'/100':''}${e.outH?' · fins a '+e.outH:''}</span></div>
+    <div class="r">${hm(e.tot)}<i>son</i></div></button>`;
+  return `<button class="row" onclick="openDet('f','${e.id}')">
+    <div class="bar" style="background:var(--flame)"></div><div class="m"><b>${e.name}</b>
+    <span>${quan}${fTip==='f'?'':' · '+e.meal} · ${e.grams} g</span></div>
+    <div class="r">${Math.round(e.kcal)}<i>kcal</i></div></button>`;
+}
+function resumDia(arr){
+  const k = arr.filter(x=>x.k==='f').reduce((s,x)=>s+x.kcal,0);
+  const m = arr.filter(x=>x.k==='t').reduce((s,x)=>s+(x.min||0),0);
+  const n = arr.find(x=>x.k==='s');
+  return [k?Math.round(k).toLocaleString('ca-ES')+' kcal':'', m?m+' min':'', n?hm(n.tot):'']
+    .filter(Boolean).join(' · ');
+}
+function mesRegistres(){ logLim += 200; renderLog(); }
 function renderLog(){
-  const nav = document.getElementById('dayNav');
-  nav.style.display = logAll ? 'none' : 'flex';
-  document.getElementById('navTxt').textContent =
-    navDay.toLocaleDateString('ca-ES',{weekday:'short',day:'numeric',month:'short'});
-  const t = totsDia(navDay);
-  document.getElementById('dayTot').innerHTML = logAll ? '' : `
-    <div><b>${Math.round(t.kcal)}</b><span>kcal</span></div>
-    <div><b>${Math.round(t.p)}</b><span>prot</span></div>
-    <div><b>${t.min}</b><span>min</span></div>
-    <div><b>${t.son?hm(t.son):'—'}</b><span>son</span></div>`;
+  /* --- filtres --- */
+  document.getElementById('fTipus').innerHTML = TIPUS.map(o=>
+    `<button class="chip${fTip===o[0]?' on '+o[2]:''}" onclick="fSet('tip','${o[0]}')">${o[1]}</button>`).join('');
+  document.getElementById('fPeriode').innerHTML = PERIODES.map(o=>
+    `<button class="chip${fPer===o[0]?' on s':''}" onclick="fSet('per','${o[0]}')">${o[1]}</button>`).join('');
 
-  let items;
-  if(logAll){
-    items = [...D.trainings.map(x=>({...x,k:'t'})), ...D.foods.map(x=>({...x,k:'f'})),
-             ...D.sleep.map(x=>({...x,k:'s'}))].sort((a,b)=>b.ts-a.ts);
+  const sub = document.getElementById('fSub');
+  if(fTip==='t'){
+    const usats = [...new Set(D.trainings.map(x=>x.sport).filter(Boolean))];
+    const llista = [...SPORTS.filter(x=>usats.includes(x)), ...usats.filter(x=>!SPORTS.includes(x))];
+    sub.innerHTML = llista.length
+      ? `<button class="chip${!fSport?' on':''}" onclick="fSet('sp','')">Tots els esports</button>` +
+        llista.map(x=>`<button class="chip${fSport===x?' on':''}" onclick="fSet('sp',${JSON.stringify(x).replace(/"/g,'&quot;')})">${x}</button>`).join('')
+      : '';
+  }else if(fTip==='f'){
+    const usats = [...new Set(D.foods.map(x=>x.meal).filter(Boolean))];
+    const llista = [...MEALS.filter(x=>usats.includes(x)), ...usats.filter(x=>!MEALS.includes(x))];
+    sub.innerHTML = llista.length
+      ? `<button class="chip${!fMeal?' on f':''}" onclick="fSet('ml','')">Tots els àpats</button>` +
+        llista.map(x=>`<button class="chip${fMeal===x?' on f':''}" onclick="fSet('ml',${JSON.stringify(x).replace(/"/g,'&quot;')})">${x}</button>`).join('')
+      : '';
+  }else sub.innerHTML = '';
+
+  /* --- totals del que s'està mirant --- */
+  const items = logItems();
+  document.getElementById('logCount').textContent =
+    items.length + (items.length===1 ? ' registre' : ' registres');
+  const cel = (v,l)=>`<div><b>${v}</b><span>${l}</span></div>`;
+  const F = items.filter(x=>x.k==='f'), T = items.filter(x=>x.k==='t'), S = items.filter(x=>x.k==='s');
+  const sum = (a,f)=>a.reduce((s,x)=>s+(f(x)||0),0);
+  let tot = '';
+  if(fTip==='f'){
+    tot = cel(Math.round(sum(F,x=>x.kcal)).toLocaleString('ca-ES'),'kcal')
+        + cel(Math.round(sum(F,x=>x.p)),'prot') + cel(Math.round(sum(F,x=>x.c)),'hidr')
+        + cel(Math.round(sum(F,x=>x.f)),'greix');
+  }else if(fTip==='t'){
+    tot = cel(T.length,'sessions') + cel(sum(T,x=>x.min),'min')
+        + cel((Math.round(sum(T,x=>x.km)*10)/10).toString().replace('.',','),'km')
+        + cel(Math.round(sum(T,x=>burnOf(x))).toLocaleString('ca-ES'),'kcal');
+  }else if(fTip==='s'){
+    const nits = S.filter(x=>x.tot), punt = S.filter(x=>x.score);
+    tot = cel(S.length, S.length===1?'nit':'nits') + cel(nits.length?hm(Math.round(sum(nits,x=>x.tot)/nits.length)):'—','mitjana')
+        + cel(punt.length?Math.round(sum(punt,x=>x.score)/punt.length):'—','punt.')
+        + cel(nits.length?hm(Math.max(...nits.map(x=>x.tot))):'—','màxim');
   }else{
-    items = [...t.T.map(x=>({...x,k:'t'})), ...t.F.map(x=>({...x,k:'f'})),
-             ...t.S.map(x=>({...x,k:'s'}))].sort((a,b)=>a.ts-b.ts);
+    const dies = new Set(items.map(x=>x.dataStr)).size;
+    tot = cel(Math.round(sum(F,x=>x.kcal)).toLocaleString('ca-ES'),'kcal') + cel(sum(T,x=>x.min),'min')
+        + cel(S.length, S.length===1?'nit':'nits') + cel(dies, dies===1?'dia':'dies');
   }
-  if(!items.length){ document.getElementById('logList').innerHTML =
-    `<div class="empty">Res registrat ${logAll?'encara':'aquest dia'}.</div>`; return; }
+  document.getElementById('dayTot').innerHTML = tot;
 
-  let html = '', lastMeal = null;
-  items.forEach(e=>{
-    const quan = (logAll ? e.dataStr+' · ' : '') + (e.horaStr||'');
-    if(e.k==='f' && !logAll && e.meal!==lastMeal){ html += `<div class="mealhead">${e.meal}</div>`; lastMeal = e.meal; }
-    if(e.k==='t') html += `<button class="row" onclick="openDet('t','${e.id}')">
-      <div class="bar" style="background:var(--acid)"></div><div class="m"><b>${e.sport}</b>
-      <span>${quan}${e.km?' · '+e.km+' km':''}${e.fc?' · '+e.fc+' ppm':''} · ~${burnOf(e)} kcal</span></div>
-      <div class="r">${e.min||'—'}<i>min</i></div></button>`;
-    else if(e.k==='s') html += `<button class="row" onclick="openDet('s','${e.id}')">
-      <div class="bar" style="background:var(--ice)"></div><div class="m"><b>Son</b>
-      <span>${quan}${e.score?' · '+e.score+'/100':''}</span></div>
-      <div class="r">${hm(e.tot)}<i>son</i></div></button>`;
-    else html += `<button class="row" onclick="openDet('f','${e.id}')">
-      <div class="bar" style="background:var(--flame)"></div><div class="m"><b>${e.name}</b>
-      <span>${quan} · ${e.grams} g</span></div>
-      <div class="r">${Math.round(e.kcal)}<i>kcal</i></div></button>`;
+  /* --- llista agrupada per dia --- */
+  if(!items.length){
+    document.getElementById('logList').innerHTML =
+      `<div class="empty">Cap registre amb aquests filtres. Prova amb un període més ampli.</div>`;
+    return;
+  }
+  const mostra = items.slice(0, logLim);
+  const perDia = new Map();
+  mostra.forEach(x=>{ const k = x.dataStr || '—';
+    if(!perDia.has(k)) perDia.set(k,[]); perDia.get(k).push(x); });
+
+  const avui = dstr(new Date());
+  const ahirD = new Date(); ahirD.setDate(ahirD.getDate()-1);
+  const ahir = dstr(ahirD);
+  let html = '';
+  perDia.forEach((arr, dia)=>{
+    const [dd,mm,yy] = dia.split('/').map(Number);
+    let etiq = dia;
+    if(dia===avui) etiq = 'Avui';
+    else if(dia===ahir) etiq = 'Ahir';
+    else if(yy) etiq = new Date(yy,mm-1,dd).toLocaleDateString('ca-ES',
+      {weekday:'long', day:'numeric', month:'long'});
+    html += `<div class="dayhead${dia===avui?' avui':''}"><b>${etiq}</b><span>${resumDia(arr)}</span></div>`;
+    const ord = arr.slice().sort((a,b)=>a.ts-b.ts);
+    let apat = null;
+    ord.forEach(e=>{
+      if(fTip==='f' && e.meal!==apat){ html += `<div class="mealhead">${e.meal}</div>`; apat = e.meal; }
+      html += fila(e, false);
+    });
   });
+  if(items.length > mostra.length)
+    html += `<button class="gh mesbtn" onclick="mesRegistres()">
+      Mostra'n més (${items.length - mostra.length} més)</button>`;
   document.getElementById('logList').innerHTML = html;
 }
 
