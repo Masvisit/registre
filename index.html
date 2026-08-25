@@ -288,6 +288,99 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
 }
 @media (min-width:1400px){ .wrap{max-width:1300px} .hero-n{font-size:104px} }
 
+/* ==========================================================
+   REFINAMENT VISUAL — mateixa veu, més precisió i moviment
+   ========================================================== */
+:root{--ease:cubic-bezier(.22,.61,.36,1);--fast:.14s;--mid:.28s}
+[data-theme="dark"]{color-scheme:dark}
+[data-theme="light"]{color-scheme:light}
+body{scrollbar-color:var(--line) transparent}
+::selection{background:var(--acid);color:var(--on-accent)}
+
+/* --- LA CINTA: el dia com una tira mesurada, un tram per àpat --- */
+.tape{position:relative;height:30px;background:var(--surf2);margin-top:16px;overflow:hidden}
+.tape .ticks{position:absolute;inset:0}
+.tape .tk{position:absolute;top:0;bottom:0;width:1px;background:var(--line);opacity:.6}
+.tape .segs{position:absolute;inset:0;display:flex;align-items:stretch}
+.tape .segs i{display:block;background:var(--acid);border-right:1.5px solid var(--bg);
+  transform-origin:left center;animation:seg .5s var(--ease) both}
+.tape .segs i:nth-child(even){filter:brightness(.84)}
+.tape .segs i.o{background:var(--flame)}
+.tape .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);z-index:2}
+.tape .mark::before{content:'';position:absolute;top:0;left:-3px;
+  border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--ink)}
+.tape.buit::after{content:attr(data-buit);position:absolute;inset:0;display:flex;align-items:center;
+  padding-left:11px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim)}
+.tapelab{position:relative;height:15px;margin-top:7px}
+.tapelab i{position:absolute;transform:translateX(-50%);white-space:nowrap;font-style:normal;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--dim)}
+.tapelab i b{color:var(--ink);font-weight:600}
+@keyframes seg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* --- xifra principal: escala fluida i números ben ajustats --- */
+.hero-n{font-size:clamp(54px,15.5vw,72px);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+@media(min-width:980px){.hero-n{font-size:clamp(76px,6.4vw,98px)}}
+
+/* --- capçalera: un tram d'accent al filet, com una pestanya --- */
+.hd{position:relative}
+.hd::after{content:'';position:absolute;left:0;bottom:-2px;width:36px;height:2px;background:var(--acid)}
+.dot{position:relative;transition:background var(--fast) linear}
+.dot.busy::after{content:'';position:absolute;inset:-4px;border:1px solid var(--flame);
+  border-radius:50%;animation:puls 1.15s var(--ease) infinite}
+@keyframes puls{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+
+/* --- panells: marca de cantonada en comptes de color al número sol --- */
+.pn{position:relative}
+.pn::before{content:'';position:absolute;top:0;left:0;width:15px;height:2px}
+.pn.a::before{background:var(--acid)}
+.pn.b::before{background:var(--ice)}
+
+/* --- setmana: entrada esglaonada i focus al dia que mires --- */
+.wd .bars i{transform-origin:bottom center;animation:pujar .45s var(--ease) both}
+@keyframes pujar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.wd{transition:opacity var(--fast) var(--ease)}
+@media(hover:hover){.wk:hover .wd{opacity:.4}.wk .wd:hover{opacity:1}}
+
+/* --- accions: filet d'accent que apareix en tocar-les --- */
+.act{transition:background var(--fast) var(--ease),transform var(--fast) var(--ease)}
+.act::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--ink);
+  transition:width var(--fast) var(--ease)}
+.act.t::before{background:var(--acid)}
+.act.f::before{background:var(--flame)}
+.act.s::before{background:var(--ice)}
+.act.d::before{background:var(--dim)}
+.act:active{transform:translateY(1px)}
+.act:active::before{width:3px}
+
+/* --- estats de ratolí, només on n'hi ha --- */
+@media(hover:hover){
+  .act:hover{background:var(--surf)}
+  .act:hover::before{width:3px}
+  .row{transition:background var(--fast) var(--ease)}
+  .row:hover{background:var(--surf)}
+  .ing,.chip,.gh,.ubtn{transition:border-color var(--fast) var(--ease),background var(--fast) var(--ease)}
+  .ing:hover{border-color:var(--dim)}
+  .chip:hover{border-color:var(--ink)}
+  .go{transition:filter var(--fast) var(--ease)}
+  .go:hover{filter:brightness(1.08)}
+  .gh:hover{border-color:var(--ink);color:var(--ink)}
+  .ubtn:hover{border-color:var(--acid)}
+  .x:hover,.ic:hover{color:var(--ink)}
+}
+.go:active,.gh:active{transform:translateY(1px)}
+
+/* --- fulls: obertura més curta i, a l'escriptori, el diàleg que puja --- */
+.sheet.on{animation:up .26s var(--ease)}
+@media(min-width:980px){
+  .dlg{animation:dlg .26s var(--ease) both}
+  @keyframes dlg{from{transform:translateY(12px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+
 /* ============ TENDENCIES ============ */
 .balrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
@@ -384,7 +477,12 @@ details summary{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight
       <div class="hero-of">kcal avui<b id="kGoal">de 0</b></div>
       <div class="hero-pill" id="kBurn">BASE <b>0</b></div>
     </div>
-    <div class="track" id="kTrack"><i id="kFill" style="width:0"></i></div>
+    <div class="tape" id="kTape" data-buit="cap àpat registrat avui">
+      <div class="ticks" id="kTicks"></div>
+      <div class="segs" id="kSegs"></div>
+      <b class="mark" id="kMark"></b>
+    </div>
+    <div class="tapelab" id="kLab"></div>
     <div class="macros">
       <div class="mac"><div class="mt"><span>PROT</span><b id="pN">0</b></div><div class="mb"><i id="pB" style="width:0;background:var(--acid)"></i></div></div>
       <div class="mac"><div class="mt"><span>HIDR</span><b id="cN">0</b></div><div class="mb"><i id="cB" style="width:0;background:var(--flame)"></i></div></div>
@@ -1173,13 +1271,15 @@ async function del(id){
 }
 function pintaCua(){
   const el = document.getElementById('syncDot'); if(!el) return;
+  el.classList.remove('busy');
   if(cua.length){ el.style.background='var(--flame)';
     el.title = cua.length+' canvi'+(cua.length>1?'s':'')+' per pujar'; return; }
   el.style.background = online ? 'var(--acid)' : 'var(--blood)';
   el.title = online ? 'Sincronitzat' : 'Sense connexió';
 }
 function setSync(s){
-  if(s==='busy'){ const el=document.getElementById('syncDot'); if(el) el.style.background='var(--flame)'; return; }
+  if(s==='busy'){ const el=document.getElementById('syncDot');
+    if(el){ el.style.background='var(--flame)'; el.classList.add('busy'); } return; }
   online = s; pintaCua();
 }
 async function refresh(busy){
@@ -1230,6 +1330,58 @@ function totsDia(d){
     son:S.length? S[0].tot : 0, score:S.length? S[0].score : null
   };
 }
+/* xifra que puja fins al valor nou; si l'usuari ha demanat menys moviment, hi salta */
+let kAnim = null, kPrev = 0;
+function animNum(el, to){
+  const fi = Math.round(to);
+  const salta = typeof requestAnimationFrame !== 'function' ||
+    (window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches);
+  const de = kPrev; kPrev = fi;
+  if(salta || Math.abs(fi-de) < 3){ el.textContent = fi.toLocaleString('ca-ES'); return; }
+  const t0 = performance.now(), dur = 520;
+  cancelAnimationFrame(kAnim);
+  const pas = ara => {
+    const q = Math.min(1,(ara-t0)/dur), e = 1-Math.pow(1-q,3);
+    el.textContent = Math.round(de+(fi-de)*e).toLocaleString('ca-ES');
+    if(q<1) kAnim = requestAnimationFrame(pas);
+  };
+  kAnim = requestAnimationFrame(pas);
+}
+/* la cinta: escala en kcal, un tram per àpat, marca a l'objectiu */
+function renderTape(t, objectiu){
+  const tape = document.getElementById('kTape'); if(!tape) return;
+  const total = t.kcal;
+  const esc = Math.max(objectiu*1.08, total*1.04, 500);
+  const pc = v => Math.max(0, Math.min(100, v/esc*100));
+
+  let tk = '';
+  for(let v=500; v<esc; v+=500) tk += `<span class="tk" style="left:${pc(v).toFixed(2)}%"></span>`;
+  document.getElementById('kTicks').innerHTML = tk;
+
+  const grups = [];
+  t.F.slice().sort((a,b)=>a.ts-b.ts).forEach(x=>{
+    const g = grups.find(y=>y.meal===x.meal);
+    if(g) g.k += x.kcal; else grups.push({meal:x.meal||'Àpat', k:x.kcal});
+  });
+  let acc = 0, html = '';
+  grups.forEach((g,i)=>{
+    const trams = (acc >= objectiu)            ? [[g.k,true]]
+                : (acc + g.k <= objectiu)      ? [[g.k,false]]
+                :                                [[objectiu-acc,false],[acc+g.k-objectiu,true]];
+    trams.forEach(tr=>{
+      html += `<i class="${tr[1]?'o':''}" style="width:${pc(tr[0]).toFixed(2)}%;animation-delay:${i*70}ms"
+        title="${g.meal}: ${Math.round(g.k)} kcal"></i>`;
+    });
+    acc += g.k;
+  });
+  document.getElementById('kSegs').innerHTML = html;
+  tape.classList.toggle('buit', !grups.length);
+  document.getElementById('kMark').style.left = pc(objectiu).toFixed(2)+'%';
+  const lx = Math.min(90, Math.max(10, pc(objectiu)));
+  document.getElementById('kLab').innerHTML =
+    `<i style="left:${lx.toFixed(2)}%">objectiu <b>${Math.round(objectiu).toLocaleString('ca-ES')}</b></i>`;
+}
+
 function render(){
   if(!USER) return;
   const now = new Date(), t = totsDia(now);
@@ -1237,13 +1389,11 @@ function render(){
   document.getElementById('dayNum').textContent = dstr(now);
 
   const objectiu = Math.round((CFG.base||2500) + t.burn);
-  document.getElementById('kNow').textContent = Math.round(t.kcal).toLocaleString('ca-ES');
+  animNum(document.getElementById('kNow'), t.kcal);
   document.getElementById('kGoal').textContent = 'de ' + objectiu.toLocaleString('ca-ES');
   document.getElementById('kBurn').innerHTML = t.burn
     ? `BASE ${CFG.base} <b>+${t.burn}</b>` : `BASE <b>${CFG.base}</b>`;
-  const pc = objectiu ? Math.min(100, t.kcal/objectiu*100) : 0;
-  document.getElementById('kFill').style.width = pc+'%';
-  document.getElementById('kTrack').classList.toggle('over', t.kcal > objectiu*1.05);
+  renderTape(t, objectiu);
 
   const set=(id,v,g,bar)=>{ document.getElementById(id+'N').textContent=Math.round(v);
     document.getElementById(id+'B').style.width=Math.min(100,g? v/g*100:0)+'%'; };
@@ -1275,10 +1425,12 @@ function renderWeek(){
   document.getElementById('wkGrid').innerHTML = dies.map((d,i)=>{
     const x = dat[i], is = dstr(d)===dstr(avui);
     const h=(v,m)=>Math.max(2, Math.round(v/m*48));
-    return `<div class="wd${is?' today':''}"><div class="bars">
-      <i class="k" style="height:${h(x.kcal,maxK)}px"></i>
-      <i class="t" style="height:${h(x.min,maxM)}px"></i>
-      <i class="s" style="height:${h(x.son,maxS)}px"></i>
+    const ret = i*45;
+    const resum = `${dstr(d)} · ${Math.round(x.kcal)} kcal · ${x.min} min · ${x.son?hm(x.son):'sense son'}`;
+    return `<div class="wd${is?' today':''}" title="${resum}"><div class="bars">
+      <i class="k" style="height:${h(x.kcal,maxK)}px;animation-delay:${ret}ms"></i>
+      <i class="t" style="height:${h(x.min,maxM)}px;animation-delay:${ret+60}ms"></i>
+      <i class="s" style="height:${h(x.son,maxS)}px;animation-delay:${ret+120}ms"></i>
       </div><div class="dl">${NOM[d.getDay()]}</div></div>`;
   }).join('');
   const tk = dat.reduce((s,x)=>s+x.kcal,0), tm = dat.reduce((s,x)=>s+x.min,0);
